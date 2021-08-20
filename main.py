@@ -20,8 +20,12 @@ class Player(pygame.sprite.Sprite) :
         self.image = pygame.Surface((50,40))
         self.image.fill((255,0,0))
         self.rect = self.image.get_rect()
-        self.rect.x = 225
-        self.rect.y = 200
+        self.rect.center = (width/2,height/2)
+    
+    def update(self) :
+        self.rect.x += 2
+        if self.rect.left > width :
+            self.rect.right = 0
 
 all_sprites = pygame.sprite.Group()
 player = Player()
@@ -37,6 +41,10 @@ while running :
     for event in pygame.event.get() :
         if event.type == pygame.QUIT :
             running = False
+
+    #Update
+    all_sprites.update()
+
 
     #draw the colors
     screen.fill(BLACK)

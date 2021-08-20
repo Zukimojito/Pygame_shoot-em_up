@@ -20,12 +20,23 @@ class Player(pygame.sprite.Sprite) :
         self.image = pygame.Surface((50,40))
         self.image.fill((255,0,0))
         self.rect = self.image.get_rect()
-        self.rect.center = (width/2,height/2)
+        self.rect.centerx = width/2
+        self.rect.bottom = height - 50
+        self.speedX = 5
     
     def update(self) :
-        self.rect.x += 2
-        if self.rect.left > width :
-            self.rect.right = 0
+
+        key_pressed = pygame.key.get_pressed()
+        if key_pressed[pygame.K_LEFT] : 
+            self.rect.x -= self.speedX
+        
+        if key_pressed[pygame.K_RIGHT] :
+            self.rect.x += self.speedX
+
+        if self.rect.right > width : 
+            self.rect.right = width
+        if self.rect.left < 0 :
+            self.rect.left = 0
 
 all_sprites = pygame.sprite.Group()
 player = Player()
@@ -45,8 +56,7 @@ while running :
     #Update
     all_sprites.update()
 
-
-    #draw the colors
+    #draw the colors on background
     screen.fill(BLACK)
     #draw all spirites on screen
     all_sprites.draw(screen)

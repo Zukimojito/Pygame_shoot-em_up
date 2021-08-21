@@ -1,5 +1,6 @@
 import pygame
 import random
+import os
 
 FPS = 60
 
@@ -18,16 +19,24 @@ screen = pygame.display.set_mode((width,height))
 pygame.display.set_caption("Python Game")       #Screen Name
 clock = pygame.time.Clock()     #Framerate
 
+Background_Img = pygame.image.load(os.path.join("Image","Background2.png")).convert()        #os.path mean in pygame file
+Player_Img = pygame.image.load(os.path.join("Image","player.png")).convert()
+Bullet_Img = pygame.image.load(os.path.join("Image","bullet.png")).convert()
+Rock_Img = pygame.image.load(os.path.join("Image","rock.png")).convert()
+
+
 class Player(pygame.sprite.Sprite) :
     def __init__(self) :
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((50,40))
-        self.image.fill(RED)
+        self.image = pygame.transform.scale(Player_Img,(50,35))
+        self.image.set_colorkey(BLACK)          #remove black color in image
+        #self.image = pygame.Surface((50,40))
+        #self.image.fill(RED)
         self.rect = self.image.get_rect()
         self.rect.centerx = width/2
         self.rect.bottom = height - 50
         self.speedX = 5
-    
+
     def update(self) :
 
         key_pressed = pygame.key.get_pressed()
@@ -52,8 +61,10 @@ class Rock(pygame.sprite.Sprite) :
         pygame.sprite.Sprite.__init__(self)
         random_size_x = random.randrange(10,50)
         random_size_y = random.randrange(10,50)
-        self.image = pygame.Surface((random_size_x,random_size_y))
-        self.image.fill(BROWN)
+        self.image = Rock_Img
+        self.image.set_colorkey(BLACK)
+        #self.image = pygame.Surface((random_size_x,random_size_y))
+        #self.image.fill(BROWN)
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0,width - self.rect.width)
         self.rect.y = random.randrange(-50,-20)
@@ -73,8 +84,10 @@ class Rock(pygame.sprite.Sprite) :
 class Bullet(pygame.sprite.Sprite) :
     def __init__(self,x,y) :
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((10,20))
-        self.image.fill(TURQUOISE)
+        self.image = Bullet_Img
+        self.image.set_colorkey(BLACK)
+        #self.image = pygame.Surface((10,20))
+        #self.image.fill(TURQUOISE)
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.bottom = y
@@ -127,6 +140,7 @@ while running :
 
     #draw the colors on background
     screen.fill(BLACK)
+    screen.blit(Background_Img,(0,0))
     #draw all spirites on screen
     all_sprites.draw(screen)
     #draw the screen

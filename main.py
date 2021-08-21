@@ -1,8 +1,11 @@
 import pygame
+import random
 
 FPS = 60
 
 BLACK = (0,0,0)
+RED = (255,0,0)
+BROWN = (165,42,42)
 
 width = 500
 height = 600
@@ -18,7 +21,7 @@ class Player(pygame.sprite.Sprite) :
     def __init__(self) :
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((50,40))
-        self.image.fill((255,0,0))
+        self.image.fill(RED)
         self.rect = self.image.get_rect()
         self.rect.centerx = width/2
         self.rect.bottom = height - 50
@@ -37,10 +40,36 @@ class Player(pygame.sprite.Sprite) :
             self.rect.right = width
         if self.rect.left < 0 :
             self.rect.left = 0
+            
+class Rock(pygame.sprite.Sprite) :
+    def __init__(self) :
+        pygame.sprite.Sprite.__init__(self)
+        random_size_x = random.randrange(10,50)
+        random_size_y = random.randrange(10,50)
+        self.image = pygame.Surface((random_size_x,random_size_y))
+        self.image.fill(BROWN)
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randrange(0,width - self.rect.width)
+        self.rect.y = random.randrange(-50,-20)
+        self.speedX = random.randrange(-3,3)
+        self.speedY = random.randrange(3,8)
+    
+    def update(self) :
+        self.rect.y += self.speedY
+        self.rect.x += self.speedX
+
+        if self.rect.left > width or self.rect.right < 0 or self.rect.top > height :
+            self.rect.x = random.randrange(0,width - self.rect.width)
+            self.rect.y = random.randrange(-50,-20)
+            self.speedX = random.randrange(-3,3)
+            self.speedY = random.randrange(3,8)
 
 all_sprites = pygame.sprite.Group()
 player = Player()
 all_sprites.add(player)
+for i in range(0,10) :
+    rock = Rock()
+    all_sprites.add(rock)
 
 #Running screen
 running = True

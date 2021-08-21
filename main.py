@@ -6,6 +6,7 @@ FPS = 60
 BLACK = (0,0,0)
 RED = (255,0,0)
 BROWN = (165,42,42)
+TURQUOISE = (37,253,233)
 
 width = 500
 height = 600
@@ -40,7 +41,11 @@ class Player(pygame.sprite.Sprite) :
             self.rect.right = width
         if self.rect.left < 0 :
             self.rect.left = 0
-            
+    
+    def shoot(self) :
+        bullet = Bullet(self.rect.centerx,self.rect.top)
+        all_sprites.add(bullet)
+
 class Rock(pygame.sprite.Sprite) :
     def __init__(self) :
         pygame.sprite.Sprite.__init__(self)
@@ -64,6 +69,21 @@ class Rock(pygame.sprite.Sprite) :
             self.speedX = random.randrange(-3,3)
             self.speedY = random.randrange(3,8)
 
+class Bullet(pygame.sprite.Sprite) :
+    def __init__(self,x,y) :
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((10,20))
+        self.image.fill(TURQUOISE)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.bottom = y
+        self.speedY = -10
+
+    def update(self) :
+        self.rect.y += self.speedY
+        if self.rect.bottom < 0 :
+            self.kill()
+
 all_sprites = pygame.sprite.Group()
 player = Player()
 all_sprites.add(player)
@@ -81,6 +101,13 @@ while running :
     for event in pygame.event.get() :
         if event.type == pygame.QUIT :
             running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                player.shoot()
+    
+    # key_pressed = pygame.key.get_pressed()
+    # if key_pressed[pygame.K_j] : 
+    #   player.shoot()
 
     #Update
     all_sprites.update()

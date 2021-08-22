@@ -2,6 +2,8 @@ import pygame
 import random
 import os
 
+from pygame.constants import K_d
+
 FPS = 60
 
 BLACK = (0,0,0)
@@ -32,7 +34,9 @@ class Player(pygame.sprite.Sprite) :
         self.image.set_colorkey(BLACK)          #remove black color in image
         #self.image = pygame.Surface((50,40))
         #self.image.fill(RED)
+        self.radius = 20
         self.rect = self.image.get_rect()
+        #pygame.draw.circle(self.image, RED, self.rect.center , self.radius)
         self.rect.centerx = width/2
         self.rect.bottom = height - 50
         self.speedX = 5
@@ -40,13 +44,13 @@ class Player(pygame.sprite.Sprite) :
     def update(self) :
 
         key_pressed = pygame.key.get_pressed()
-        if key_pressed[pygame.K_LEFT] : 
+        if key_pressed[pygame.K_LEFT] or key_pressed[pygame.K_q]: 
             self.rect.x -= self.speedX
         
-        if key_pressed[pygame.K_RIGHT] :
+        if key_pressed[pygame.K_RIGHT] or key_pressed[pygame.K_d] :
             self.rect.x += self.speedX
 
-        if self.rect.right > width : 
+        if self.rect.right > width :
             self.rect.right = width
         if self.rect.left < 0 :
             self.rect.left = 0
@@ -66,6 +70,8 @@ class Rock(pygame.sprite.Sprite) :
         #self.image = pygame.Surface((random_size_x,random_size_y))
         #self.image.fill(BROWN)
         self.rect = self.image.get_rect()
+        self.radius = self.rect.width * 0.85 / 2
+        #pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
         self.rect.x = random.randrange(0,width - self.rect.width)
         self.rect.y = random.randrange(-50,-20)
         self.speedX = random.randrange(-3,3)
@@ -122,9 +128,9 @@ while running :
             if event.key == pygame.K_SPACE:
                 player.shoot()
     
-    # key_pressed = pygame.key.get_pressed()
-    # if key_pressed[pygame.K_j] : 
-    #   player.shoot()
+    key_pressed = pygame.key.get_pressed()
+    if key_pressed[pygame.K_j] : 
+        player.shoot() 
 
     #Update
     all_sprites.update()
@@ -134,7 +140,7 @@ while running :
         all_sprites.add(rock)
         Rock_collision.add(rock)
 
-    hit_player = pygame.sprite.spritecollide(player, Rock_collision, True)
+    hit_player = pygame.sprite.spritecollide(player, Rock_collision, True, pygame.sprite.collide_circle)
     if hit_player :
         running = False
 

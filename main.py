@@ -24,8 +24,10 @@ clock = pygame.time.Clock()     #Framerate
 Background_Img = pygame.image.load(os.path.join("Image","Background2.png")).convert()        #os.path mean in pygame file
 Player_Img = pygame.image.load(os.path.join("Image","player.png")).convert()
 Bullet_Img = pygame.image.load(os.path.join("Image","bullet.png")).convert()
-Rock_Img = pygame.image.load(os.path.join("Image","rock.png")).convert()
-
+#Rock_Img = pygame.image.load(os.path.join("Image","rock.png")).convert()
+Rock_Imgs = []
+for i in range(0,7) :
+    Rock_Imgs.append(pygame.image.load(os.path.join("Image",f"rock{i}.png")).convert())
 
 class Player(pygame.sprite.Sprite) :
     def __init__(self) :
@@ -65,19 +67,31 @@ class Rock(pygame.sprite.Sprite) :
         pygame.sprite.Sprite.__init__(self)
         random_size_x = random.randrange(10,50)
         random_size_y = random.randrange(10,50)
-        self.image = Rock_Img
-        self.image.set_colorkey(BLACK)
+        self.image_original = random.choice(Rock_Imgs)
+        self.image_original.set_colorkey(BLACK)
+        self.image = self.image_original.copy()
         #self.image = pygame.Surface((random_size_x,random_size_y))
         #self.image.fill(BROWN)
         self.rect = self.image.get_rect()
         self.radius = self.rect.width * 0.85 / 2
         #pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
         self.rect.x = random.randrange(0,width - self.rect.width)
-        self.rect.y = random.randrange(-50,-20)
+        self.rect.y = random.randrange(-150,-100)
         self.speedX = random.randrange(-3,3)
         self.speedY = random.randrange(3,8)
+        self.rotation_degree = random.randrange(-10,10)
+        self.total_rotation_degree = 0
     
+    def rotation(self) :
+        self.total_rotation_degree += self.rotation_degree
+        self.total_rotation_degree = self.total_rotation_degree % 360
+        self.image = pygame.transform.rotate(self.image_original, self.total_rotation_degree)       #function to rotate
+        center = self.rect.center
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+
     def update(self) :
+        self.rotation()
         self.rect.y += self.speedY
         self.rect.x += self.speedX
 

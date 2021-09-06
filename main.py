@@ -10,10 +10,11 @@ BLACK = (0,0,0)
 RED = (255,0,0)
 BROWN = (165,42,42)
 TURQUOISE = (37,253,233)
+WHITE = (255,255,255)
 
 width = 500
 height = 600
-
+score = 0
 #Initialize the game and create screen
 
 pygame.init()
@@ -28,6 +29,15 @@ Bullet_Img = pygame.image.load(os.path.join("Image","bullet.png")).convert()
 Rock_Imgs = []
 for i in range(0,7) :
     Rock_Imgs.append(pygame.image.load(os.path.join("Image",f"rock{i}.png")).convert())
+
+font_name = pygame.font.match_font('Times New Roman')
+def draw_text(surf, text, size, x, y) :
+    font = pygame.font.Font(font_name,size)
+    text_surface = font.render(text, True, WHITE)
+    text_rect = text_surface.get_rect()
+    text_rect.centerx = x
+    text_rect.top = y
+    surf.blit(text_surface, text_rect)
 
 class Player(pygame.sprite.Sprite) :
     def __init__(self) :
@@ -78,7 +88,7 @@ class Rock(pygame.sprite.Sprite) :
         self.rect.x = random.randrange(0,width - self.rect.width)
         self.rect.y = random.randrange(-150,-100)
         self.speedX = random.randrange(-3,3)
-        self.speedY = random.randrange(3,8)
+        self.speedY = random.randrange(3,6)
         self.rotation_degree = random.randrange(-10,10)
         self.total_rotation_degree = 0
     
@@ -153,6 +163,7 @@ while running :
         rock = Rock()
         all_sprites.add(rock)
         Rock_collision.add(rock)
+        score += int(i.radius)
 
     hit_player = pygame.sprite.spritecollide(player, Rock_collision, True, pygame.sprite.collide_circle)
     if hit_player :
@@ -163,6 +174,7 @@ while running :
     screen.blit(Background_Img,(0,0))
     #draw all spirites on screen
     all_sprites.draw(screen)
+    draw_text(screen, str(score), 20, width/2, 10)
     #draw the screen
     pygame.display.update()
 

@@ -18,6 +18,7 @@ score = 0
 #Initialize the game and create screen
 
 pygame.init()
+pygame.mixer.init()
 screen = pygame.display.set_mode((width,height))
 pygame.display.set_caption("Python Game")       #Screen Name
 clock = pygame.time.Clock()     #Framerate
@@ -25,10 +26,22 @@ clock = pygame.time.Clock()     #Framerate
 Background_Img = pygame.image.load(os.path.join("Image","Background2.png")).convert()        #os.path mean in pygame file
 Player_Img = pygame.image.load(os.path.join("Image","player.png")).convert()
 Bullet_Img = pygame.image.load(os.path.join("Image","bullet.png")).convert()
-#Rock_Img = pygame.image.load(os.path.join("Image","rock.png")).convert()
+# Rock_Img = pygame.image.load(os.path.join("Image","rock.png")).convert()
 Rock_Imgs = []
 for i in range(0,7) :
     Rock_Imgs.append(pygame.image.load(os.path.join("Image",f"rock{i}.png")).convert())
+
+# Music & Sound
+shoot_sound = pygame.mixer.Sound(os.path.join("Sound","shoot.wav"))
+explo_sound = [
+    pygame.mixer.Sound(os.path.join("Sound","expl0.wav")),
+    pygame.mixer.Sound(os.path.join("Sound","expl1.wav"))
+]
+pygame.mixer.music.load(os.path.join("Sound","background.ogg"))
+pygame.mixer.music.set_volume(0.4)
+shoot_sound.set_volume(0.4)
+explo_sound[0].set_volume(0.3)
+explo_sound[1].set_volume(0.3)
 
 font_name = pygame.font.match_font('Times New Roman')
 def draw_text(surf, text, size, x, y) :
@@ -71,6 +84,7 @@ class Player(pygame.sprite.Sprite) :
         bullet = Bullet(self.rect.centerx,self.rect.top)
         all_sprites.add(bullet)
         Bullet_collision.add(bullet)
+        shoot_sound.play()
 
 class Rock(pygame.sprite.Sprite) :
     def __init__(self) :
@@ -138,6 +152,7 @@ for i in range(0,10) :
     all_sprites.add(rock)
     Rock_collision.add(rock)
 
+pygame.mixer.music.play()
 #Running screen
 running = True
 
@@ -160,6 +175,7 @@ while running :
     all_sprites.update()
     Hit = pygame.sprite.groupcollide(Rock_collision,Bullet_collision,True,True)
     for i in Hit :
+        explo = random.choice(explo_sound).play()
         rock = Rock()
         all_sprites.add(rock)
         Rock_collision.add(rock)

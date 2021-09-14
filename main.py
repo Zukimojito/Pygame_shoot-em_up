@@ -11,6 +11,7 @@ RED = (255,0,0)
 BROWN = (165,42,42)
 TURQUOISE = (37,253,233)
 WHITE = (255,255,255)
+GREEN = (0,255,0)
 
 width = 500
 height = 600
@@ -52,6 +53,22 @@ def draw_text(surf, text, size, x, y) :
     text_rect.top = y
     surf.blit(text_surface, text_rect)
 
+def new_rock() : 
+    rock = Rock()
+    all_sprites.add(rock)
+    Rock_collision.add(rock)
+
+def draw_health(surf, hp, x, y) :
+    if hp < 0 :
+        hp = 0
+    BAR_LENGTH = 100
+    BAR_HEIGHT = 10
+    fill = (hp/100) * BAR_LENGTH
+    outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
+    fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
+    pygame.draw.rect(surf, GREEN, fill_rect)
+    pygame.draw.rect(surf, WHITE, outline_rect, 1)
+
 class Player(pygame.sprite.Sprite) :
     def __init__(self) :
         pygame.sprite.Sprite.__init__(self)
@@ -65,6 +82,7 @@ class Player(pygame.sprite.Sprite) :
         self.rect.centerx = width/2
         self.rect.bottom = height - 50
         self.speedX = 5
+        self.health = 100
 
     def update(self) :
 
@@ -148,9 +166,7 @@ Bullet_collision = pygame.sprite.Group()
 player = Player()
 all_sprites.add(player)
 for i in range(0,10) :
-    rock = Rock()
-    all_sprites.add(rock)
-    Rock_collision.add(rock)
+    new_rock()
 
 pygame.mixer.music.play()
 #Running screen
@@ -176,14 +192,15 @@ while running :
     Hit = pygame.sprite.groupcollide(Rock_collision,Bullet_collision,True,True)
     for i in Hit :
         explo = random.choice(explo_sound).play()
-        rock = Rock()
-        all_sprites.add(rock)
-        Rock_collision.add(rock)
+        new_rock()
         score += int(i.radius)
 
     hit_player = pygame.sprite.spritecollide(player, Rock_collision, True, pygame.sprite.collide_circle)
-    if hit_player :
-        running = False
+    for i in hit_player :
+        new_rock()
+        player.health -= i.radius
+        if player.health <= 0 :
+            running = False
 
     #draw the colors on background
     screen.fill(BLACK)
@@ -191,6 +208,7 @@ while running :
     #draw all spirites on screen
     all_sprites.draw(screen)
     draw_text(screen, str(score), 20, width/2, 10)
+    draw_health(screen, player.health, 5, 10)
     #draw the screen
     pygame.display.update()
 

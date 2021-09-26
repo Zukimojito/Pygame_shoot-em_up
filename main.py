@@ -26,23 +26,35 @@ clock = pygame.time.Clock()     #Framerate
 
 Background_Img = pygame.image.load(os.path.join("Image","Background2.png")).convert()        #os.path mean in pygame file
 Player_Img = pygame.image.load(os.path.join("Image","player.png")).convert()
+Player_Lives_Img = pygame.image.load(os.path.join("Image","heart.png")).convert()
+Player_Lives_heart = pygame.transform.scale(Player_Lives_Img,(25,25))
+Player_Lives_heart.set_colorkey(WHITE)
 Bullet_Img = pygame.image.load(os.path.join("Image","bullet.png")).convert()
 # Rock_Img = pygame.image.load(os.path.join("Image","rock.png")).convert()
 Rock_Imgs = []
-for i in range(0,7) :
+for i in range(0,8) :
     Rock_Imgs.append(pygame.image.load(os.path.join("Image",f"rock{i}.png")).convert())
 
 #explosion animation
 explo_animation = {}
 explo_animation['big'] = []
 explo_animation['small'] = []
+explo_animation['player'] = []
 for i in range(9) :
     explo_img = pygame.image.load(os.path.join("Image",f"expl{i}.png")).convert()
     explo_img.set_colorkey(BLACK)
     explo_animation['big'].append(pygame.transform.scale(explo_img, (70,70)))
     explo_animation['small'].append(pygame.transform.scale(explo_img,(25,25)))
+
+    player_explo_img = pygame.image.load(os.path.join("Image",f"player_expl{i}.png")).convert()
+    player_explo_img.set_colorkey(BLACK)
+    explo_animation['player'].append(pygame.transform.scale(player_explo_img,(150,150)))
+
 # Music & Sound
 shoot_sound = pygame.mixer.Sound(os.path.join("Sound","shoot.wav"))
+death_sound = pygame.mixer.Sound(os.path.join("Sound","rumble.ogg"))
+
+
 explo_sound = [
     pygame.mixer.Sound(os.path.join("Sound","expl0.wav")),
     pygame.mixer.Sound(os.path.join("Sound","expl1.wav"))
@@ -78,6 +90,13 @@ def draw_health(surf, hp, x, y) :
     pygame.draw.rect(surf, GREEN, fill_rect)
     pygame.draw.rect(surf, WHITE, outline_rect, 1)
 
+def draw_lives(surf, lives, img, x, y) :
+    for i in range(lives) :
+        img_rect = img.get_rect()
+        img_rect.x = x + 30*i
+        img_rect.y = y
+        surf.blit(img,img_rect)
+
 class Player(pygame.sprite.Sprite) :
     def __init__(self) :
         pygame.sprite.Sprite.__init__(self)
@@ -92,8 +111,16 @@ class Player(pygame.sprite.Sprite) :
         self.rect.bottom = height - 50
         self.speedX = 5
         self.health = 100
+        self.lives = 3
+        self.hidden = False
+        self.hide_time = pygame.time.get_ticks()
 
     def update(self) :
+
+        if self.hidden and pygame.time.get_ticks() - self.hide_time >= 1000 :
+            self.hidden = False
+            self.rect.centerx = width/2
+            self.rect.bottom = height - 50
 
         key_pressed = pygame.key.get_pressed()
         if key_pressed[pygame.K_LEFT] or key_pressed[pygame.K_q]: 
@@ -108,10 +135,18 @@ class Player(pygame.sprite.Sprite) :
             self.rect.left = 0
     
     def shoot(self) :
-        bullet = Bullet(self.rect.centerx,self.rect.top)
-        all_sprites.add(bullet)
-        Bullet_collision.add(bullet)
-        shoot_sound.play()
+
+        if not(self.hidden) : # == False
+            bullet = Bullet(self.rect.centerx,self.rect.top)
+            all_sprites.add(bullet)
+            Bullet_collision.add(bullet)
+            shoot_sound.play()
+    
+    def hide(self) :
+        self.hidden = True
+        self.hide_time = pygame.time.get_ticks()
+        self.rect.center = (width/2, height+500)
+
 
 class Rock(pygame.sprite.Sprite) :
     def __init__(self) :
@@ -178,7 +213,7 @@ class Explosion(pygame.sprite.Sprite) :
         self.rect.center = center
         self.frame = 0
         self.last_update = pygame.time.get_ticks()
-        self.frame_rate = 50
+        self.frame_rate = 30
     
     def update(self) :
         now = pygame.time.get_ticks()
@@ -237,7 +272,15 @@ while running :
         explo_anim = Explosion(i.rect.center, 'small')
         all_sprites.add(explo_anim)
         if player.health <= 0 :
-            running = False
+            death_expl = Explosion(player.rect.center, 'player')
+            all_sprites.add(death_expl)
+            death_sound.play()
+            player.lives -= 1
+            player.health = 100
+            player.hide()
+
+    if player.lives == 0 and not(death_expl.alive()):
+        running = False
 
     #draw the colors on background
     screen.fill(BLACK)
@@ -246,6 +289,7 @@ while running :
     all_sprites.draw(screen)
     draw_text(screen, str(score), 20, width/2, 10)
     draw_health(screen, player.health, 5, 10)
+    draw_lives(screen,player.lives,Player_Lives_heart,width-100, 15)
     #draw the screen
     pygame.display.update()
 

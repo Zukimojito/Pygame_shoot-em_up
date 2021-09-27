@@ -50,10 +50,15 @@ for i in range(9) :
     player_explo_img.set_colorkey(BLACK)
     explo_animation['player'].append(pygame.transform.scale(player_explo_img,(150,150)))
 
+item_drop = {}
+item_drop['za_warudo'] = pygame.image.load(os.path.join("Image","item1.png")).convert()
+item_drop['boost'] = pygame.image.load(os.path.join("Image","troll.png")).convert()
+
 # Music & Sound
 shoot_sound = pygame.mixer.Sound(os.path.join("Sound","shoot.wav"))
 death_sound = pygame.mixer.Sound(os.path.join("Sound","rumble.ogg"))
-
+heal_sound = pygame.mixer.Sound(os.path.join("Sound","pow0.wav"))
+boost_sound = pygame.mixer.Sound(os.path.join("Sound","pow1.wav"))
 
 explo_sound = [
     pygame.mixer.Sound(os.path.join("Sound","expl0.wav")),
@@ -64,6 +69,8 @@ pygame.mixer.music.set_volume(0.2)
 shoot_sound.set_volume(0.2)
 explo_sound[0].set_volume(0.2)
 explo_sound[1].set_volume(0.2)
+heal_sound.set_volume(0.1)
+boost_sound.set_volume(0.1)
 
 font_name = pygame.font.match_font('Times New Roman')
 def draw_text(surf, text, size, x, y) :
@@ -114,10 +121,17 @@ class Player(pygame.sprite.Sprite) :
         self.lives = 3
         self.hidden = False
         self.hide_time = pygame.time.get_ticks()
+        self.boost_level = 1
+        self.boost_time = 0
 
     def update(self) :
 
-        if self.hidden and pygame.time.get_ticks() - self.hide_time >= 1000 :
+        now = pygame.time.get_ticks()
+        if self.boost_level > 1 and now - self.boost_time > 5000 :
+            self.boost_level -= 1
+            self.boost_time = now
+
+        if self.hidden and now - self.hide_time >= 1000 :
             self.hidden = False
             self.rect.centerx = width/2
             self.rect.bottom = height - 50
@@ -137,16 +151,39 @@ class Player(pygame.sprite.Sprite) :
     def shoot(self) :
 
         if not(self.hidden) : # == False
-            bullet = Bullet(self.rect.centerx,self.rect.top)
-            all_sprites.add(bullet)
-            Bullet_collision.add(bullet)
-            shoot_sound.play()
+            if self.boost_level == 1 :
+                bullet = Bullet(self.rect.centerx,self.rect.top)
+                all_sprites.add(bullet)
+                Bullet_collision.add(bullet)
+                shoot_sound.play()
+            elif self.boost_level == 2 :
+                bullet1 = Bullet(self.rect.left,self.rect.centery)
+                bullet2 = Bullet(self.rect.right,self.rect.centery)
+                all_sprites.add(bullet1)
+                all_sprites.add(bullet2)
+                Bullet_collision.add(bullet1)
+                Bullet_collision.add(bullet2)
+                shoot_sound.play()
+            elif self.boost_level >= 3 :
+                bullet1 = Bullet(self.rect.left,self.rect.centery)
+                bullet2 = Bullet(self.rect.right,self.rect.centery)
+                bullet3 = Bullet(self.rect.centerx,self.rect.centery)
+                all_sprites.add(bullet1)
+                all_sprites.add(bullet2)
+                all_sprites.add(bullet3)
+                Bullet_collision.add(bullet1)
+                Bullet_collision.add(bullet2)
+                Bullet_collision.add(bullet3)
+                shoot_sound.play()
     
     def hide(self) :
         self.hidden = True
         self.hide_time = pygame.time.get_ticks()
         self.rect.center = (width/2, height+500)
 
+    def boost(self) :
+        self.boost_level += 1
+        self.boost_time = pygame.time.get_ticks()
 
 class Rock(pygame.sprite.Sprite) :
     def __init__(self) :
@@ -167,8 +204,9 @@ class Rock(pygame.sprite.Sprite) :
         self.speedY = random.randrange(3,6)
         self.rotation_degree = random.randrange(-10,10)
         self.total_rotation_degree = 0
-    
+
     def rotation(self) :
+
         self.total_rotation_degree += self.rotation_degree
         self.total_rotation_degree = self.total_rotation_degree % 360
         self.image = pygame.transform.rotate(self.image_original, self.total_rotation_degree)       #function to rotate
@@ -177,6 +215,7 @@ class Rock(pygame.sprite.Sprite) :
         self.rect.center = center
 
     def update(self) :
+        
         self.rotation()
         self.rect.y += self.speedY
         self.rect.x += self.speedX
@@ -186,6 +225,7 @@ class Rock(pygame.sprite.Sprite) :
             self.rect.y = random.randrange(-50,-20)
             self.speedX = random.randrange(-3,3)
             self.speedY = random.randrange(3,8)
+
 
 class Bullet(pygame.sprite.Sprite) :
     def __init__(self,x,y) :
@@ -203,6 +243,21 @@ class Bullet(pygame.sprite.Sprite) :
         self.rect.y += self.speedY
         if self.rect.bottom < 0 :
             self.kill()
+
+class Item(pygame.sprite.Sprite) :
+    def __init__(self, center) : 
+        pygame.sprite.Sprite.__init__(self)
+        self.type = random.choice(['za_warudo','boost'])
+        self.image = item_drop[self.type]
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+        self.speed = 4
+
+    def update(self) :
+        self.rect.y += self.speed
+        if self.rect.top > height :
+            self.kill
 
 class Explosion(pygame.sprite.Sprite) :
     def __init__(self, center, size) :
@@ -231,7 +286,9 @@ class Explosion(pygame.sprite.Sprite) :
 all_sprites = pygame.sprite.Group()
 Rock_collision = pygame.sprite.Group()
 Bullet_collision = pygame.sprite.Group()
+Item_collision = pygame.sprite.Group()
 player = Player()
+Rock_stop = Rock()
 all_sprites.add(player)
 for i in range(0,10) :
     new_rock()
@@ -262,6 +319,10 @@ while running :
         random.choice(explo_sound).play()
         explo_anim = Explosion(i.rect.center, 'big')
         all_sprites.add(explo_anim)
+        if random.random() > 0.1 :
+            drop_item = Item(i.rect.center)
+            all_sprites.add(drop_item)
+            Item_collision.add(drop_item)
         new_rock()
         score += int(i.radius)
 
@@ -278,6 +339,18 @@ while running :
             player.lives -= 1
             player.health = 100
             player.hide()
+    #Collision Player and Item
+    hit_item = pygame.sprite.spritecollide(player, Item_collision, True)
+    for i in hit_item :
+        if i.type == 'za_warudo' :
+            player.health += 10
+            if player.health > 100 :
+                player.health = 100
+            heal_sound.play()
+        elif i.type == 'boost' :
+            player.boost()
+            boost_sound.play()
+
 
     if player.lives == 0 and not(death_expl.alive()):
         running = False

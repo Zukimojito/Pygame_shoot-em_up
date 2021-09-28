@@ -15,7 +15,6 @@ GREEN = (0,255,0)
 
 width = 500
 height = 600
-score = 0
 #Initialize the game and create screen
 
 pygame.init()
@@ -72,7 +71,8 @@ explo_sound[1].set_volume(0.2)
 heal_sound.set_volume(0.1)
 boost_sound.set_volume(0.1)
 
-font_name = pygame.font.match_font('Times New Roman')
+#font_name = pygame.font.match_font('Times New Roman')
+font_name = os.path.join("Text","font.ttf")
 def draw_text(surf, text, size, x, y) :
     font = pygame.font.Font(font_name,size)
     text_surface = font.render(text, True, WHITE)
@@ -103,6 +103,22 @@ def draw_lives(surf, lives, img, x, y) :
         img_rect.x = x + 30*i
         img_rect.y = y
         surf.blit(img,img_rect)
+
+def Draw_init() :
+    screen.blit(Background_Img,(0,0))
+    draw_text(screen,'Swallowed Star', 64, width/2, height/4)
+    draw_text(screen,'Press ← or → to move', 28, width/2, height/2)
+    draw_text(screen,'Press SPACE to shoot', 28, width/2, height/1.5)
+    draw_text(screen,'by Zukimojito', 12, width/2, height-20)
+    pygame.display.update()
+    waiting = True
+    while waiting :
+        clock.tick(FPS)
+        for event in pygame.event.get() :
+            if event.type == pygame.QUIT :
+                pygame.quit()
+            elif event.type == pygame.KEYUP :
+                waiting = False
 
 class Player(pygame.sprite.Sprite) :
     def __init__(self) :
@@ -226,7 +242,6 @@ class Rock(pygame.sprite.Sprite) :
             self.speedX = random.randrange(-3,3)
             self.speedY = random.randrange(3,8)
 
-
 class Bullet(pygame.sprite.Sprite) :
     def __init__(self,x,y) :
         pygame.sprite.Sprite.__init__(self)
@@ -283,21 +298,27 @@ class Explosion(pygame.sprite.Sprite) :
                 self.rect = self.image.get_rect()
                 self.rect.center = center
 
-all_sprites = pygame.sprite.Group()
-Rock_collision = pygame.sprite.Group()
-Bullet_collision = pygame.sprite.Group()
-Item_collision = pygame.sprite.Group()
-player = Player()
-Rock_stop = Rock()
-all_sprites.add(player)
-for i in range(0,10) :
-    new_rock()
-
 pygame.mixer.music.play()
 #Running screen
+show_init = True
 running = True
 
 while running :
+    #Menu
+    if show_init :
+        Draw_init()
+        show_init = False
+        all_sprites = pygame.sprite.Group()
+        Rock_collision = pygame.sprite.Group()
+        Bullet_collision = pygame.sprite.Group()
+        Item_collision = pygame.sprite.Group()
+        player = Player()
+        Rock_stop = Rock()
+        all_sprites.add(player)
+        score = 0
+        for i in range(0,10) :
+            new_rock()
+
     #Framerate by sec by screen
     clock.tick(FPS)
     # Pygame will register all events from the user
@@ -353,7 +374,8 @@ while running :
 
 
     if player.lives == 0 and not(death_expl.alive()):
-        running = False
+        #running = False
+        show_init = True
 
     #draw the colors on background
     screen.fill(BLACK)

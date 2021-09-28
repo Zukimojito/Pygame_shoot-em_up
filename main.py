@@ -13,8 +13,8 @@ TURQUOISE = (37,253,233)
 WHITE = (255,255,255)
 GREEN = (0,255,0)
 
-width = 500
-height = 600
+width = 821
+height = 900
 #Initialize the game and create screen
 
 pygame.init()
@@ -23,7 +23,7 @@ screen = pygame.display.set_mode((width,height))
 pygame.display.set_caption("Python Game")       #Screen Name
 clock = pygame.time.Clock()     #Framerate
 
-Background_Img = pygame.image.load(os.path.join("Image","Background2.png")).convert()        #os.path mean in pygame file
+Background_Img = pygame.image.load(os.path.join("Image","Background1.jpg")).convert()        #os.path mean in pygame file
 Player_Img = pygame.image.load(os.path.join("Image","player.png")).convert()
 Player_Lives_Img = pygame.image.load(os.path.join("Image","heart.png")).convert()
 Player_Lives_heart = pygame.transform.scale(Player_Lives_Img,(25,25))
@@ -340,7 +340,7 @@ while running :
         random.choice(explo_sound).play()
         explo_anim = Explosion(i.rect.center, 'big')
         all_sprites.add(explo_anim)
-        if random.random() > 0.1 :
+        if random.random() > 0.80 :
             drop_item = Item(i.rect.center)
             all_sprites.add(drop_item)
             Item_collision.add(drop_item)

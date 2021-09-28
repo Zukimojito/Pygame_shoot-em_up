@@ -13,8 +13,8 @@ TURQUOISE = (37,253,233)
 WHITE = (255,255,255)
 GREEN = (0,255,0)
 
-width = 821
-height = 900
+width = 815
+height = 895
 #Initialize the game and create screen
 
 pygame.init()

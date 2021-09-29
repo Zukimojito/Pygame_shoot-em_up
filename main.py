@@ -31,7 +31,7 @@ Player_Lives_heart.set_colorkey(WHITE)
 Bullet_Img = pygame.image.load(os.path.join("Image","bullet.png")).convert()
 # Rock_Img = pygame.image.load(os.path.join("Image","rock.png")).convert()
 Rock_Imgs = []
-for i in range(0,8) :
+for i in range(0,7) :
     Rock_Imgs.append(pygame.image.load(os.path.join("Image",f"rock{i}.png")).convert())
 
 #explosion animation
@@ -117,8 +117,10 @@ def Draw_init() :
         for event in pygame.event.get() :
             if event.type == pygame.QUIT :
                 pygame.quit()
+                return True
             elif event.type == pygame.KEYUP :
                 waiting = False
+                return False
 
 class Player(pygame.sprite.Sprite) :
     def __init__(self) :
@@ -133,6 +135,7 @@ class Player(pygame.sprite.Sprite) :
         self.rect.centerx = width/2
         self.rect.bottom = height - 50
         self.speedX = 5
+        self.speedY = 4
         self.health = 100
         self.lives = 3
         self.hidden = False
@@ -159,10 +162,20 @@ class Player(pygame.sprite.Sprite) :
         if key_pressed[pygame.K_RIGHT] or key_pressed[pygame.K_d] :
             self.rect.x += self.speedX
 
+        if key_pressed[pygame.K_UP] or key_pressed[pygame.K_z] :
+            self.rect.y -= self.speedY
+        
+        if key_pressed[pygame.K_DOWN] or key_pressed[pygame.K_s] :
+            self.rect.y += self.speedY
+
         if self.rect.right > width :
             self.rect.right = width
         if self.rect.left < 0 :
             self.rect.left = 0
+        if self.rect.top < 0 :
+            self.rect.top = 0
+        if self.rect.bottom > height :
+            self.rect.bottom = height
     
     def shoot(self) :
 
@@ -306,7 +319,9 @@ running = True
 while running :
     #Menu
     if show_init :
-        Draw_init()
+        close_game = Draw_init()
+        if close_game :
+            break
         show_init = False
         all_sprites = pygame.sprite.Group()
         Rock_collision = pygame.sprite.Group()
@@ -316,7 +331,9 @@ while running :
         Rock_stop = Rock()
         all_sprites.add(player)
         score = 0
-        for i in range(0,10) :
+        score_cap = 500
+        maximum_rock = 2
+        for i in range(0,7) :
             new_rock()
 
     #Framerate by sec by screen
@@ -336,6 +353,7 @@ while running :
     #Update
     all_sprites.update()
     Hit = pygame.sprite.groupcollide(Rock_collision,Bullet_collision,True,True)
+
     for i in Hit :
         random.choice(explo_sound).play()
         explo_anim = Explosion(i.rect.center, 'big')
@@ -346,7 +364,10 @@ while running :
             Item_collision.add(drop_item)
         new_rock()
         score += int(i.radius)
-
+        if score > score_cap :
+            new_rock()
+            score_cap += 500
+ 
     hit_player = pygame.sprite.spritecollide(player, Rock_collision, True, pygame.sprite.collide_circle)
     for i in hit_player :
         new_rock()
@@ -371,7 +392,6 @@ while running :
         elif i.type == 'boost' :
             player.boost()
             boost_sound.play()
-
 
     if player.lives == 0 and not(death_expl.alive()):
         #running = False

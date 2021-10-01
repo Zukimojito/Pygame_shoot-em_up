@@ -29,6 +29,7 @@ Player_Lives_Img = pygame.image.load(os.path.join("Image","heart.png")).convert(
 Player_Lives_heart = pygame.transform.scale(Player_Lives_Img,(25,25))
 Player_Lives_heart.set_colorkey(WHITE)
 Bullet_Img = pygame.image.load(os.path.join("Image","bullet.png")).convert()
+Boss_Img = pygame.image.load(os.path.join("Image","boss.png")).convert()
 # Rock_Img = pygame.image.load(os.path.join("Image","rock.png")).convert()
 Rock_Imgs = []
 for i in range(0,7) :
@@ -86,6 +87,11 @@ def new_rock() :
     all_sprites.add(rock)
     Rock_collision.add(rock)
 
+def new_boss() :
+    boss = Boss()
+    all_sprites.add(boss)
+    Boss_collision.add(boss)
+
 def draw_health(surf, hp, x, y) :
     if hp < 0 :
         hp = 0
@@ -109,7 +115,7 @@ def Draw_init() :
     draw_text(screen,'Swallowed Star', 64, width/2, height/4)
     draw_text(screen,'Press ← or → to move', 28, width/2, height/2)
     draw_text(screen,'Press SPACE to shoot', 28, width/2, height/1.5)
-    draw_text(screen,'by Zukimojito', 12, width/2, height-20)
+    draw_text(screen,'by Zukimojito', 12, width/1.075, height-20)
     pygame.display.update()
     waiting = True
     while waiting :
@@ -217,8 +223,8 @@ class Player(pygame.sprite.Sprite) :
 class Rock(pygame.sprite.Sprite) :
     def __init__(self) :
         pygame.sprite.Sprite.__init__(self)
-        random_size_x = random.randrange(10,50)
-        random_size_y = random.randrange(10,50)
+        #random_size_x = random.randrange(10,50)
+        #random_size_y = random.randrange(10,50)
         self.image_original = random.choice(Rock_Imgs)
         self.image_original.set_colorkey(BLACK)
         self.image = self.image_original.copy()
@@ -254,6 +260,56 @@ class Rock(pygame.sprite.Sprite) :
             self.rect.y = random.randrange(-50,-20)
             self.speedX = random.randrange(-3,3)
             self.speedY = random.randrange(3,8)
+
+class Boss(pygame.sprite.Sprite) :
+    def __init__(self) :
+        pygame.sprite.Sprite.__init__(self)
+        self.image_original = Boss_Img
+        self.image_original.set_colorkey(BLACK)
+        self.image = self.image_original.copy()
+        self.rect = self.image.get_rect()
+        self.radius = self.rect.width * 0.85 / 2
+        #self.rect.x = random.randrange(0,width - self.rect.width)
+        self.position_x = random.randint(-250, width+250)     #position to reach x
+        self.position_y = random.randint(-250, height + 250)
+        self.rect.x = width/2 - int(self.rect.width/2)
+        self.rect.y = 0
+        self.speedX = random.randrange(3,5)
+        self.speedY = random.randrange(3,5)
+        self.rotation_degree = random.randrange(-10,10)
+        self.total_rotation_degree = 0
+
+    def rotation(self) :
+
+        self.total_rotation_degree += self.rotation_degree
+        self.total_rotation_degree = self.total_rotation_degree % 360
+        self.image = pygame.transform.rotate(self.image_original, self.total_rotation_degree)       #function to rotate
+        center = self.rect.center
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+
+    def update(self) :
+
+        if self.rect.x < self.position_x :
+            self.rect.x += self.speedX
+        elif self.rect.x > self.position_x :
+            self.rect.x -= self.speedX
+        if abs(self.rect.x - self.position_x) < self.speedX :
+            self.position_x = random.randint(-250, width+250)
+
+        if self.rect.y < self.position_y :
+            self.rect.y += self.speedY
+        elif self.rect.y > self.position_y :
+            self.rect.y -= self.speedY
+        if abs(self.rect.y - self.position_y) < self.speedY :
+            self.position_y = random.randint(-250, height + 250)
+
+        if self.rect.left > width + 150 or self.rect.right < 0 - 150 or self.rect.top > height + 150 or self.rect.bottom < 0 - 150:
+            self.rect.x = random.choice([-100, width + 100])
+            self.rect.y = random.randrange(-100,height + 150)
+            self.speedX = random.randrange(3,5)
+            self.speedY = random.randrange(3,5)
+
 
 class Bullet(pygame.sprite.Sprite) :
     def __init__(self,x,y) :
@@ -327,11 +383,12 @@ while running :
         Rock_collision = pygame.sprite.Group()
         Bullet_collision = pygame.sprite.Group()
         Item_collision = pygame.sprite.Group()
+        Boss_collision = pygame.sprite.Group()
         player = Player()
-        Rock_stop = Rock()
         all_sprites.add(player)
         score = 0
-        score_cap = 500
+        score_cap = 100
+        boss_cap = 100
         maximum_rock = 2
         for i in range(0,7) :
             new_rock()
@@ -349,11 +406,11 @@ while running :
     key_pressed = pygame.key.get_pressed()
     if key_pressed[pygame.K_j] : 
         player.shoot() 
+        
 
     #Update
     all_sprites.update()
     Hit = pygame.sprite.groupcollide(Rock_collision,Bullet_collision,True,True)
-
     for i in Hit :
         random.choice(explo_sound).play()
         explo_anim = Explosion(i.rect.center, 'big')
@@ -364,12 +421,31 @@ while running :
             Item_collision.add(drop_item)
         new_rock()
         score += int(i.radius)
-        if score > score_cap :
-            new_rock()
-            score_cap += 500
- 
-    hit_player = pygame.sprite.spritecollide(player, Rock_collision, True, pygame.sprite.collide_circle)
-    for i in hit_player :
+    if score > score_cap :
+        new_rock()
+        score_cap += 100
+    if score > boss_cap :
+        new_boss()
+        boss_cap += 1000
+            
+
+    #Hit_boss = pygame.sprite.groupcollide(Boss_collision, Bullet_collision, True, True)
+    #for i in Hit_boss :
+        #random.choice(explo_sound).play()
+        """
+    hit_player_boss = pygame.sprite.spritecollide(player, Boss_collision, True, pygame.sprite.collide_circle)
+    for i in hit_player_boss :
+        player.health -= 100
+        if player.health <= 0 :
+            death_expl = Explosion(player.rect.center, 'player')
+            all_sprites.add(death_expl)
+            death_sound.play()
+            player.lives -= 1
+            player.health = 100
+            player.hide()"""
+
+    hit_player_rock = pygame.sprite.spritecollide(player, Rock_collision, True, pygame.sprite.collide_circle)
+    for i in hit_player_rock :
         new_rock()
         player.health -= i.radius
         explo_anim = Explosion(i.rect.center, 'small')

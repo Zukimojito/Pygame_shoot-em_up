@@ -3,5 +3,5 @@
 
 Control : 
 
-Press ← or → to move
+Press ↑ ↓ → or ← to move
 Press SPACE to shoot

@@ -13,17 +13,21 @@ TURQUOISE = (37,253,233)
 WHITE = (255,255,255)
 GREEN = (0,255,0)
 
-width = 815
-height = 895
+width = 728
+height = 800
 #Initialize the game and create screen
 
 pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((width,height))
-pygame.display.set_caption("Python Game")       #Screen Name
+pygame.display.set_caption("Swallowed Star")       #Screen Name
 clock = pygame.time.Clock()     #Framerate
 
-Background_Img = pygame.image.load(os.path.join("Image","Background1.jpg")).convert()        #os.path mean in pygame file
+#Image
+
+Background_Img_Menu = pygame.image.load(os.path.join("Image","Background1.jpg")).convert()
+Background = pygame.image.load(os.path.join("Image","Background3.jpg")).convert()        #os.path mean in pygame file
+Background_Img = pygame.transform.scale(Background,(728,800))
 Player_Img = pygame.image.load(os.path.join("Image","player.png")).convert()
 Player_Lives_Img = pygame.image.load(os.path.join("Image","heart.png")).convert()
 Player_Lives_heart = pygame.transform.scale(Player_Lives_Img,(25,25))
@@ -92,6 +96,11 @@ def new_boss() :
     all_sprites.add(boss)
     Boss_collision.add(boss)
 
+def new_player() :
+    player = Player()
+    all_sprites.add(player)
+    Player_collision(player)
+
 def draw_health(surf, hp, x, y) :
     if hp < 0 :
         hp = 0
@@ -111,7 +120,7 @@ def draw_lives(surf, lives, img, x, y) :
         surf.blit(img,img_rect)
 
 def Draw_init() :
-    screen.blit(Background_Img,(0,0))
+    screen.blit(Background_Img_Menu,(0,0))
     draw_text(screen,'Swallowed Star', 64, width/2, height/4)
     draw_text(screen,'Press ← or → to move', 28, width/2, height/2)
     draw_text(screen,'Press SPACE to shoot', 28, width/2, height/1.5)
@@ -148,6 +157,7 @@ class Player(pygame.sprite.Sprite) :
         self.hide_time = pygame.time.get_ticks()
         self.boost_level = 1
         self.boost_time = 0
+        self.move = True
 
     def update(self) :
 
@@ -158,21 +168,26 @@ class Player(pygame.sprite.Sprite) :
 
         if self.hidden and now - self.hide_time >= 1000 :
             self.hidden = False
-            self.rect.centerx = width/2
-            self.rect.bottom = height - 50
+            #self.rect.centerx = width/2
+            #self.rect.bottom = height - 50
 
         key_pressed = pygame.key.get_pressed()
-        if key_pressed[pygame.K_LEFT] or key_pressed[pygame.K_q]: 
-            self.rect.x -= self.speedX
-        
-        if key_pressed[pygame.K_RIGHT] or key_pressed[pygame.K_d] :
-            self.rect.x += self.speedX
 
-        if key_pressed[pygame.K_UP] or key_pressed[pygame.K_z] :
-            self.rect.y -= self.speedY
-        
-        if key_pressed[pygame.K_DOWN] or key_pressed[pygame.K_s] :
-            self.rect.y += self.speedY
+        if not(self.move) and now - self.hide_time >= 1000 :        #immobile 1 sec
+            self.move = True
+
+        if self.move :
+            if key_pressed[pygame.K_LEFT] or key_pressed[pygame.K_q]: 
+                self.rect.x -= self.speedX
+            
+            if key_pressed[pygame.K_RIGHT] or key_pressed[pygame.K_d] :
+                self.rect.x += self.speedX
+
+            if key_pressed[pygame.K_UP] or key_pressed[pygame.K_z] :
+                self.rect.y -= self.speedY
+            
+            if key_pressed[pygame.K_DOWN] or key_pressed[pygame.K_s] :
+                self.rect.y += self.speedY
 
         if self.rect.right > width :
             self.rect.right = width
@@ -180,6 +195,7 @@ class Player(pygame.sprite.Sprite) :
             self.rect.left = 0
         if self.rect.top < 0 :
             self.rect.top = 0
+        #bug
         if self.rect.bottom > height :
             self.rect.bottom = height
     
@@ -191,6 +207,7 @@ class Player(pygame.sprite.Sprite) :
                 all_sprites.add(bullet)
                 Bullet_collision.add(bullet)
                 shoot_sound.play()
+
             elif self.boost_level == 2 :
                 bullet1 = Bullet(self.rect.left,self.rect.centery)
                 bullet2 = Bullet(self.rect.right,self.rect.centery)
@@ -199,6 +216,7 @@ class Player(pygame.sprite.Sprite) :
                 Bullet_collision.add(bullet1)
                 Bullet_collision.add(bullet2)
                 shoot_sound.play()
+
             elif self.boost_level >= 3 :
                 bullet1 = Bullet(self.rect.left,self.rect.centery)
                 bullet2 = Bullet(self.rect.right,self.rect.centery)
@@ -214,7 +232,12 @@ class Player(pygame.sprite.Sprite) :
     def hide(self) :
         self.hidden = True
         self.hide_time = pygame.time.get_ticks()
-        self.rect.center = (width/2, height+500)
+        #self.rect.center = (width/2, height+500)
+        self.rect.centerx = width/2
+        self.rect.bottom = height - 50
+        
+        self.move = False
+        
 
     def boost(self) :
         self.boost_level += 1
@@ -278,6 +301,7 @@ class Boss(pygame.sprite.Sprite) :
         self.speedY = random.randrange(3,5)
         self.rotation_degree = random.randrange(-10,10)
         self.total_rotation_degree = 0
+        self.health = 100
 
     def rotation(self) :
 
@@ -304,12 +328,12 @@ class Boss(pygame.sprite.Sprite) :
         if abs(self.rect.y - self.position_y) < self.speedY :
             self.position_y = random.randint(-250, height + 250)
 
+        
         if self.rect.left > width + 150 or self.rect.right < 0 - 150 or self.rect.top > height + 150 or self.rect.bottom < 0 - 150:
             self.rect.x = random.choice([-100, width + 100])
             self.rect.y = random.randrange(-100,height + 150)
             self.speedX = random.randrange(3,5)
             self.speedY = random.randrange(3,5)
-
 
 class Bullet(pygame.sprite.Sprite) :
     def __init__(self,x,y) :
@@ -371,7 +395,8 @@ pygame.mixer.music.play()
 #Running screen
 show_init = True
 running = True
-
+k = 0
+Boss_dead = False
 while running :
     #Menu
     if show_init :
@@ -384,13 +409,15 @@ while running :
         Bullet_collision = pygame.sprite.Group()
         Item_collision = pygame.sprite.Group()
         Boss_collision = pygame.sprite.Group()
+        Player_collision = pygame.sprite.Group()
         player = Player()
         all_sprites.add(player)
+        pygame.sprite.Group(player)
+        boss_sprite = Boss()
         score = 0
-        score_cap = 100
-        boss_cap = 100
-        maximum_rock = 2
-        for i in range(0,7) :
+        score_cap = 500
+        boss_cap = 1000
+        for i in range(0,5) :
             new_rock()
 
     #Framerate by sec by screen
@@ -423,16 +450,24 @@ while running :
         score += int(i.radius)
     if score > score_cap :
         new_rock()
-        score_cap += 100
+        score_cap += 300
     if score > boss_cap :
         new_boss()
         boss_cap += 1000
             
-
-    #Hit_boss = pygame.sprite.groupcollide(Boss_collision, Bullet_collision, True, True)
-    #for i in Hit_boss :
-        #random.choice(explo_sound).play()
-        """
+    
+    Hit_boss = pygame.sprite.groupcollide(Boss_collision, Bullet_collision, Boss_dead, True)
+    for i in Hit_boss :
+        boss_sprite.health -= random.randrange(5,30)
+        random.choice(explo_sound).play()
+        explo_anim = Explosion(i.rect.center, 'big')
+        all_sprites.add(explo_anim)
+        if boss_sprite.health <= 0 :
+            Boss_dead = True
+            death_expl = Explosion(i.rect.center, 'player')
+            all_sprites.add(death_expl)
+            boss_sprite.health = 100
+            
     hit_player_boss = pygame.sprite.spritecollide(player, Boss_collision, True, pygame.sprite.collide_circle)
     for i in hit_player_boss :
         player.health -= 100
@@ -442,8 +477,8 @@ while running :
             death_sound.play()
             player.lives -= 1
             player.health = 100
-            player.hide()"""
-
+            player.hide()
+        
     hit_player_rock = pygame.sprite.spritecollide(player, Rock_collision, True, pygame.sprite.collide_circle)
     for i in hit_player_rock :
         new_rock()
@@ -471,16 +506,21 @@ while running :
 
     if player.lives == 0 and not(death_expl.alive()):
         #running = False
-        show_init = True
+        show_init = True        #show menu
 
     #draw the colors on background
     screen.fill(BLACK)
-    screen.blit(Background_Img,(0,0))
+    screen.blit(Background_Img,(0,k))
+    #scrolling background
+    screen.blit(Background_Img,(0,-height  + k))
+    if k == height :
+        k = 0
+    k += 1
     #draw all spirites on screen
-    all_sprites.draw(screen)
-    draw_text(screen, str(score), 20, width/2, 10)
-    draw_health(screen, player.health, 5, 10)
-    draw_lives(screen,player.lives,Player_Lives_heart,width-100, 15)
+    all_sprites.draw(screen)        #Rock, player, boss, etc ...
+    draw_text(screen, str(score), 20, width/2, 10)      #Score
+    draw_health(screen, player.health, 5, 10)       #HP
+    draw_lives(screen,player.lives,Player_Lives_heart,width-100, 15)    #Heart
     #draw the screen
     pygame.display.update()
 

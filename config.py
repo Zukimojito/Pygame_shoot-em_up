@@ -1,0 +1,14 @@
+WIN_WIDTH = 700
+WIN_HEIGHT = 800
+
+BLACK = (0,0,0)
+RED = (255,0,0)
+BROWN = (165,42,42)
+TURQUOISE = (37,253,233)
+WHITE = (255,255,255)
+GREEN = (0,255,0)
+
+FPS = 60
+
+speedX = 5
+speedY = 4

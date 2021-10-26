@@ -12,8 +12,8 @@ class Player(pygame.sprite.Sprite) :
         self.game = game
         pygame.sprite.Sprite.__init__(self)
         #Player_Img = pygame.image.load(os.path.join("Image","player.png")).convert_alpha()      # keep transparency
-        Player_Img = pygame.image.load(os.path.join("Image","player.png")).convert()
-        self.image = pygame.transform.scale(Player_Img,(40,25))
+        self.image = pygame.image.load(os.path.join("Image","player.png")).convert()
+        self.image = pygame.transform.scale(self.image,(40,25))
         self.image.set_colorkey(BLACK)     #Remove background BLACK colors 
         #self.image = pygame.Surface((50,35))
         #self.image.fill(GREEN)
@@ -83,7 +83,7 @@ class Rock(pygame.sprite.Sprite) :
         self.image_original.set_colorkey(BLACK)
         self.image = self.image_original.copy()
         self.rect = self.image.get_rect()
-        self.radius = self.rect.width * 0.85 / 2
+        self.radius = self.rect.width * 0.80 / 2
         pygame.draw.circle(self.image, RED, self.rect.center , self.radius)
         self.rect.x = random.randrange(0,WIN_WIDTH - self.rect.width)
         self.rect.y = random.randrange(-150,-100)
@@ -129,6 +129,7 @@ class Bullet(pygame.sprite.Sprite) :
         if self.rect.bottom < 0 :
             self.kill()
 
+
 class Explosion(pygame.sprite.Sprite) :
     def __init__(self, center, size) :
         pygame.sprite.Sprite.__init__(self)
@@ -155,3 +156,28 @@ class Explosion(pygame.sprite.Sprite) :
                 center = self.rect.center
                 self.rect = self.image.get_rect()
                 self.rect.center = center
+
+
+class Boss1(pygame.sprite.Sprite) :
+    def __init__(self, game):
+        pygame.sprite.Sprite.__init__(self)
+        self.game = game
+        self.image = pygame.image.load(os.path.join("Image","boss1.png")).convert()
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.health = 100
+
+
+        self.rect.centerx = WIN_WIDTH / 2
+        self.rect.bottom = WIN_HEIGHT - 600
+    
+    def update(self) :
+        if self.health < 1 :
+            self.kill()
+        
+
+
+    
+
+
+

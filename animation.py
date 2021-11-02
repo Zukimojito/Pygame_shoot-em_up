@@ -10,9 +10,6 @@ class Animation :
         self.expl_anim['small'] = []
         self.expl_anim['player'] = []
 
-        
-
-
         for i in range(9) :
             self.expl_img = pygame.image.load(os.path.join("Image",f"expl{i}.png")).convert()
             self.expl_img.set_colorkey(BLACK)

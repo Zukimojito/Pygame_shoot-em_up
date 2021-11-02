@@ -50,11 +50,10 @@ class Game :
         self.all_sprites.add(self.rock)
         self.Rocks.add(self.rock)
 
-    def new_boss1(self) :
-        self.boss1 = Boss1(self)
-        self.all_sprites.add(self.boss1)
-        #self.the_boss.add(self.boss1)
-
+    def new_boss2(self) :
+        self.boss2 = Boss2(self)
+        self.all_sprites.add(self.boss2)
+        #self.the_boss.add(self.boss2)
 
     def events(self) :
 
@@ -110,17 +109,17 @@ class Game :
                     self.player.health = 100
                     self.hide()
 
-        #Boss1 and Bullet
-        if self.boss1.health > 1 :                                                          #activate collision by checking if boss still has health
-            hits3 = pygame.sprite.spritecollide(self.boss1, self.Bullets, True, pygame.sprite.collide_mask)
+        #Boss2 and Bullet
+        if self.boss2.health > 1 :                                                          #activate collision by checking if boss still has health
+            hits3 = pygame.sprite.spritecollide(self.boss2, self.Bullets, True, pygame.sprite.collide_mask)
             for i in hits3 :
                 explo = Explosion(i.rect.center, 'big')
                 self.all_sprites.add(explo)
-                self.boss1.health -= 10
-                if self.boss1.health < 1 :
+                self.boss2.health -= 10
+                if self.boss2.health < 1 :
                     pass
-                    #self.all_sprites.remove(self.boss1)
-                    #self.boss1.remove()
+                    #self.all_sprites.remove(self.boss2)
+                    #self.boss2.remove()
 
     def draw(self) :
         self.screen.fill(BLACK)                                                             #Draw the background colors
@@ -168,13 +167,14 @@ class Game :
             self.Bullets = pygame.sprite.Group()
             self.Items = pygame.sprite.Group()
             self.the_boss = pygame.sprite.Group()
-
+            self.Bullets_boss = pygame.sprite.Group()
+            
             self.player = Player(self)
             self.all_sprites.add(self.player)
 
             for i in range(0,5) :
                 self.new_rock()
-            self.new_boss1()
+            self.new_boss2()
             
 game = Game()
 game.new_game()

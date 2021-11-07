@@ -20,9 +20,11 @@ class Game :
         self.Background = pygame.transform.scale(self.Background_Img,(845,800))
         self.Background_Y = 0
         self.score = 0
+        self.score_max = 500
         self.draw_screen = Draw_screen(self)
         self.hidden = False
         self.hide_time = 0
+        self.Boss2_IsAlive = False
 
     def hide(self) :
         self.hidden = True
@@ -51,6 +53,7 @@ class Game :
         self.Rocks.add(self.rock)
 
     def new_boss2(self) :
+        self.Boss2_IsAlive = True
         self.boss2 = Boss2(self)
         self.all_sprites.add(self.boss2)
         #self.the_boss.add(self.boss2)
@@ -67,10 +70,13 @@ class Game :
                     pass
 
     def update(self) :
-        
         self.all_sprites.update()
 
         now = pygame.time.get_ticks()
+
+        if self.score > self.score_max :                                                    #Spawn the boss
+            self.new_boss2()
+            self.score_max += 1000
 
         if self.hidden and now - self.hide_time > 1000 :                                    #after 1 s we spawn player
             self.hidden = False
@@ -108,17 +114,22 @@ class Game :
                     self.player.live -= 1
                     self.player.health = 100
                     self.hide()
-
+        
         #Boss2 and Bullet_player
-        if self.boss2.health > 1 :                                                          #activate collision by checking if boss still has health
+        if self.Boss2_IsAlive :                                                          #activate collision by checking if boss still has health
             hits3 = pygame.sprite.spritecollide(self.boss2, self.Bullets, True, pygame.sprite.collide_mask)
             for i in hits3 :
                 explo = Explosion(i.rect.center, 'big')
                 self.all_sprites.add(explo)
                 self.boss2.health -= 10
+                if self.boss2.health < 50 :
+                    self.boss2.final_shot()
+                if self.boss2.health < 25 :
+                    self.boss2.final_shot()
                 if self.boss2.health < 1 :
                     self.boss2.final_shot()
 
+        
         #Bullet_player and Bullet_Boss2
         hit4 = pygame.sprite.groupcollide(self.Bullets, self.Bullets_boss, True, True)
         for i in hit4 :
@@ -140,7 +151,6 @@ class Game :
                     self.player.live -= 1
                     self.player.health = 100
                     self.hide()
-
 
 
     def draw(self) :
@@ -196,8 +206,11 @@ class Game :
 
             for i in range(0,5) :
                 self.new_rock()
+            self.score = 0
             self.new_boss2()
-            
+
+
+
 game = Game()
 game.new_game()
 

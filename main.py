@@ -94,7 +94,7 @@ class Game :
             self.new_rock()
 
         #Player and Rock
-        if self.player.health > 0 :                                                         #activate collision by checking if player still has health
+        if not(self.hidden) :                                                                   #activate collision by checking if player still has health
             hits2 = pygame.sprite.spritecollide(self.player, self.Rocks, True, pygame.sprite.collide_circle)
             for i in hits2 :
                 self.new_rock()
@@ -109,7 +109,7 @@ class Game :
                     self.player.health = 100
                     self.hide()
 
-        #Boss2 and Bullet
+        #Boss2 and Bullet_player
         if self.boss2.health > 1 :                                                          #activate collision by checking if boss still has health
             hits3 = pygame.sprite.spritecollide(self.boss2, self.Bullets, True, pygame.sprite.collide_mask)
             for i in hits3 :
@@ -117,9 +117,31 @@ class Game :
                 self.all_sprites.add(explo)
                 self.boss2.health -= 10
                 if self.boss2.health < 1 :
-                    pass
-                    #self.all_sprites.remove(self.boss2)
-                    #self.boss2.remove()
+                    self.boss2.final_shot()
+
+        #Bullet_player and Bullet_Boss2
+        hit4 = pygame.sprite.groupcollide(self.Bullets, self.Bullets_boss, True, True)
+        for i in hit4 :
+            explo = Explosion(i.rect.center, 'small')
+            self.all_sprites.add(explo)
+            random.choice(explo_sound).play()
+        
+        #Player and Bullet_Boss2
+        if not(self.hidden) :
+            hit5 = pygame.sprite.spritecollide(self.player, self.Bullets_boss, True, pygame.sprite.collide_circle)
+            for i in hit5 :
+                explo = Explosion(i.rect.center, 'small')
+                self.all_sprites.add(explo)
+                self.player.health -= int(i.radius)
+                if self.player.health < 1 :
+                    self.death_expl = Explosion(i.rect.center, 'player')
+                    self.all_sprites.add(self.death_expl)
+                    Death_sound.play()
+                    self.player.live -= 1
+                    self.player.health = 100
+                    self.hide()
+
+
 
     def draw(self) :
         self.screen.fill(BLACK)                                                             #Draw the background colors
@@ -164,10 +186,10 @@ class Game :
             self.show_init = False
             self.all_sprites = pygame.sprite.Group()
             self.Rocks = pygame.sprite.Group()
-            self.Bullets = pygame.sprite.Group()
+            self.Bullets = pygame.sprite.Group()                #Bullets player
             self.Items = pygame.sprite.Group()
             self.the_boss = pygame.sprite.Group()
-            self.Bullets_boss = pygame.sprite.Group()
+            self.Bullets_boss = pygame.sprite.Group()           #Bullets Boss
             
             self.player = Player(self)
             self.all_sprites.add(self.player)

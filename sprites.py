@@ -239,6 +239,7 @@ class Boss2(pygame.sprite.Sprite):
         if now - self.last_time > self.cooldown :
             self.last_time = now
             self.shoot()
+            
         """
         self.angle %= 360
         self.angle += 2"""
@@ -278,22 +279,26 @@ class Boss2(pygame.sprite.Sprite):
             
         final_shoot = []
         for i in range(40) :
-            final_shoot.append(Projectile(self.rect.center, self.direction[i]))
+            final_shoot.append(Projectile_Boss(self.rect.center, self.direction[i]))
             self.groups()[0].add(final_shoot)
+            self.game.Bullets_boss.add(final_shoot)
 
         """
         shoot1 = Projectile(self.rect.center, self.direction1)
         self.groups()[0].add(shoot1)
         """
+    
     def shoot(self) :
-        shoot = Projectile(self.rect.center, self.direction1)
+        shoot = Projectile_Boss(self.rect.center, self.direction1)
         self.groups()[0].add(shoot)
+        self.game.Bullets_boss.add(shoot)
 
     def kill_self(self) :
         if self.health < 1 :
             self.kill()
+            
 
-class Projectile(pygame.sprite.Sprite):
+class Projectile_Boss(pygame.sprite.Sprite):
     def __init__(self, pos, direction):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(os.path.join("Image","balls.png")).convert_alpha()

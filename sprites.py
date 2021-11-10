@@ -161,41 +161,6 @@ class Explosion(pygame.sprite.Sprite) :
                 center = self.rect.center
                 self.rect = self.image.get_rect()
                 self.rect.center = center
-"""
-class Boss1(pygame.sprite.Sprite) :
-    def __init__(self, game):
-        pygame.sprite.Sprite.__init__(self)
-        self.game = game
-        self.image = pygame.image.load(os.path.join("Image","boss1.png")).convert()
-        self.image.set_colorkey(BLACK)
-        self.rect = self.image.get_rect()
-        self.health = 100
-        self.cooldown = 250
-        self.last = pygame.time.get_ticks()
-
-        self.rect.centerx = WIN_WIDTH / 2
-        self.rect.bottom = WIN_HEIGHT - 600
-    
-    def update(self) :
-        self.now = pygame.time.get_ticks()
-
-        if self.now - self.last >= self.cooldown:
-                self.last = self.now
-                self.shoot()
-
-        self.kill_self()
-
-    def shoot(self) :
-        bullet_boss = Bullet_Boss(self.rect.centerx,self.rect.bottom)
-        self.game.all_sprites.add(bullet_boss)
-        self.game.Bullets_boss.add(bullet_boss)
-        Shoot_sound.play()
-
-        
-    def kill_self(self) :
-        if self.health < 1 :
-            self.kill()
-"""
 
 class Boss2(pygame.sprite.Sprite):
     def __init__(self, game):
@@ -371,7 +336,6 @@ class Boss1(pygame.sprite.Sprite):
             self.game.Boss1_IsAlive = False
             self.kill()
 
-
 class Bullet_Boss(pygame.sprite.Sprite) :
     def __init__(self,x,y) :
         pygame.sprite.Sprite.__init__(self)
@@ -382,7 +346,7 @@ class Bullet_Boss(pygame.sprite.Sprite) :
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.bottom = y
-        self.speedY = -10
+        self.speedY = -8
         self.speedX = 10
 
     def update(self) :
@@ -410,3 +374,40 @@ class Projectile_Boss(pygame.sprite.Sprite):
         self.rect.center = self.pos
         if not pygame.display.get_surface().get_rect().contains(self.rect):
             self.kill()
+
+
+"""
+class Boss1(pygame.sprite.Sprite) :
+    def __init__(self, game):
+        pygame.sprite.Sprite.__init__(self)
+        self.game = game
+        self.image = pygame.image.load(os.path.join("Image","boss1.png")).convert()
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.health = 100
+        self.cooldown = 250
+        self.last = pygame.time.get_ticks()
+
+        self.rect.centerx = WIN_WIDTH / 2
+        self.rect.bottom = WIN_HEIGHT - 600
+    
+    def update(self) :
+        self.now = pygame.time.get_ticks()
+
+        if self.now - self.last >= self.cooldown:
+                self.last = self.now
+                self.shoot()
+
+        self.kill_self()
+
+    def shoot(self) :
+        bullet_boss = Bullet_Boss(self.rect.centerx,self.rect.bottom)
+        self.game.all_sprites.add(bullet_boss)
+        self.game.Bullets_boss.add(bullet_boss)
+        Shoot_sound.play()
+
+        
+    def kill_self(self) :
+        if self.health < 1 :
+            self.kill()
+"""

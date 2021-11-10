@@ -26,7 +26,7 @@ class Game :
         self.hide_time = 0
         self.Boss1_IsAlive = False
         self.Boss2_IsAlive = False
-        
+        self.last_time_boss = pygame.time.get_ticks()
 
     def hide(self) :
         self.hidden = True
@@ -36,18 +36,6 @@ class Game :
     def new_game(self) :
         #A New game starts
         pygame.mixer.music.play(-1)
-        """
-        self.all_sprites = pygame.sprite.Group()
-        self.Rocks = pygame.sprite.Group()
-        self.Bullets = pygame.sprite.Group()
-        self.Items = pygame.sprite.Group()
-        self.the_boss = pygame.sprite.Group()
-
-        self.player = Player(self)
-        self.all_sprites.add(self.player)
-
-        for i in range(0,5) :
-            self.new_rock()"""
 
     def new_rock(self) : 
         self.rock = Rock()
@@ -58,12 +46,13 @@ class Game :
         self.Boss1_IsAlive = True
         self.boss1 = Boss1(self)
         self.all_sprites.add(self.boss1)
+        self.the_boss.add(self.boss1)
 
     def new_boss2(self) :
         self.Boss2_IsAlive = True
         self.boss2 = Boss2(self)
         self.all_sprites.add(self.boss2)
-        #self.the_boss.add(self.boss2)
+        self.the_boss.add(self.boss2)
 
     def events(self) :
 
@@ -84,6 +73,11 @@ class Game :
         if self.score > self.score_max :                                                    #Spawn the boss
             self.new_boss2()
             self.score_max += 1000
+        """
+        if now - self.last_time_boss > 5000 :                                               #Spawn the boss1 every 5 sec
+            self.last_time_boss = now
+            self.new_boss1()
+        """
 
         if self.hidden and now - self.hide_time > 1000 :                                    #after 1 s we spawn player
             self.hidden = False
@@ -153,7 +147,7 @@ class Game :
             random.choice(explo_sound).play()
         
         #Player and Bullet_Boss2
-        if not(self.hidden) :
+        if not(self.hidden) :        #if player hasn't die
             hit5 = pygame.sprite.spritecollide(self.player, self.Bullets_boss, True, pygame.sprite.collide_mask)
             for i in hit5 :
                 explo = Explosion(i.rect.center, 'small')
@@ -168,6 +162,18 @@ class Game :
                     self.player.health = 100
                     self.hide()
 
+        #Player and Boss1, Boss2
+        if not(self.hidden) :
+            hit7 = pygame.sprite.spritecollide(self.player, self.the_boss, False, pygame.sprite.collide_mask)
+            for i in hit7 :
+                self.player.health -= 101
+                if self.player.health < 1 :
+                    self.death_expl = Explosion(self.player.rect.center, 'player')
+                    self.all_sprites.add(self.death_expl)
+                    Death_sound.play()
+                    self.player.live -= 1
+                    self.player.health = 100
+                    self.hide()
 
     def draw(self) :
         self.screen.fill(BLACK)                                                             #Draw the background colors
@@ -223,8 +229,8 @@ class Game :
             for i in range(0,5) :
                 self.new_rock()
             self.score = 0
-            #self.new_boss2()
-            self.new_boss1()
+            self.new_boss2()
+            #self.new_boss1()
 
 game = Game()
 game.new_game()

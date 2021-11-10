@@ -154,11 +154,11 @@ class Game :
         
         #Player and Bullet_Boss2
         if not(self.hidden) :
-            hit5 = pygame.sprite.spritecollide(self.player, self.Bullets_boss, True, pygame.sprite.collide_circle)
+            hit5 = pygame.sprite.spritecollide(self.player, self.Bullets_boss, True, pygame.sprite.collide_mask)
             for i in hit5 :
                 explo = Explosion(i.rect.center, 'small')
                 self.all_sprites.add(explo)
-                self.player.health -= int(i.radius)
+                self.player.health -= int(random.randrange(5,20))
                 random.choice(explo_sound).play()
                 if self.player.health < 1 :
                     self.death_expl = Explosion(i.rect.center, 'player')

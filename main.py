@@ -24,7 +24,9 @@ class Game :
         self.draw_screen = Draw_screen(self)
         self.hidden = False
         self.hide_time = 0
+        self.Boss1_IsAlive = False
         self.Boss2_IsAlive = False
+        
 
     def hide(self) :
         self.hidden = True
@@ -51,6 +53,11 @@ class Game :
         self.rock = Rock()
         self.all_sprites.add(self.rock)
         self.Rocks.add(self.rock)
+
+    def new_boss1(self) :
+        self.Boss1_IsAlive = True
+        self.boss1 = Boss1(self)
+        self.all_sprites.add(self.boss1)
 
     def new_boss2(self) :
         self.Boss2_IsAlive = True
@@ -121,13 +128,21 @@ class Game :
             for i in hits3 :
                 explo = Explosion(i.rect.center, 'big')
                 self.all_sprites.add(explo)
+                random.choice(explo_sound).play()
                 self.boss2.health -= 10
-                if self.boss2.health < 50 :
-                    self.boss2.final_shot()
-                if self.boss2.health < 25 :
-                    self.boss2.final_shot()
                 if self.boss2.health < 1 :
                     self.boss2.final_shot()
+        
+        #Boss1 and Bullet_player
+        if self.Boss1_IsAlive :
+            hit6 = pygame.sprite.spritecollide(self.boss1, self.Bullets, True, pygame.sprite.collide_mask)
+            for i in hit6 :
+                explo = Explosion(i.rect.center, 'big')
+                self.all_sprites.add(explo)
+                self.boss1.health -= 10
+                random.choice(explo_sound).play()
+                if self.boss1.health < 1 :
+                    self.boss1.final_shot()
 
         
         #Bullet_player and Bullet_Boss2
@@ -144,6 +159,7 @@ class Game :
                 explo = Explosion(i.rect.center, 'small')
                 self.all_sprites.add(explo)
                 self.player.health -= int(i.radius)
+                random.choice(explo_sound).play()
                 if self.player.health < 1 :
                     self.death_expl = Explosion(i.rect.center, 'player')
                     self.all_sprites.add(self.death_expl)
@@ -207,9 +223,8 @@ class Game :
             for i in range(0,5) :
                 self.new_rock()
             self.score = 0
-            self.new_boss2()
-
-
+            #self.new_boss2()
+            self.new_boss1()
 
 game = Game()
 game.new_game()

@@ -222,6 +222,7 @@ class Boss2(pygame.sprite.Sprite):
         """
         self.angle %= 360
         self.angle += 2"""
+
         pressed = pygame.key.get_pressed()
 
         if pressed[pygame.K_p]:
@@ -281,6 +282,93 @@ class Boss2(pygame.sprite.Sprite):
     def kill_self(self) :
         if self.health < 1 :
             self.game.Boss2_IsAlive = False
+            self.kill()
+
+class Boss1(pygame.sprite.Sprite):
+    def __init__(self, game):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join("Image","boss1.png")).convert_alpha()
+        self.image = pygame.transform.scale(self.image,(256,232))
+        self.image.set_colorkey((0, 0, 0))
+        self.org_image = self.image.copy()
+        self.game = game
+        self.angle = 0
+        self.direction1 = pygame.Vector2(0, 0)
+        self.direction = []
+        self.rect = self.image.get_rect(center=(WIN_WIDTH / 2, WIN_HEIGHT - 600))
+        self.pos = pygame.Vector2(self.rect.center)
+        self.health = 100
+        self.cooldown = 300
+        self.last_time = pygame.time.get_ticks()
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_time > self.cooldown :
+            self.last_time = now
+            self.shoot()
+
+        pressed = pygame.key.get_pressed()
+
+        if pressed[pygame.K_p]:
+            self.final_shot()
+
+        if pressed[pygame.K_o]:
+            self.angle += 3
+        if pressed[pygame.K_u]:
+            self.angle -= 3
+        
+        self.direction1 = pygame.Vector2(0, 1).rotate(-self.angle)
+        self.image = pygame.transform.rotate(self.org_image, self.angle)
+        self.rect = self.image.get_rect(center=self.rect.center)
+
+        self.kill_self()
+
+    def final_shot(self) :
+        for i in np.arange(0, 1.25, 0.25) :
+            self.direction.append(pygame.Vector2(i, 1).rotate(-self.angle))             #angle 270° ~ 315°
+        for i in np.arange(0, 1.25, 0.25) :
+            self.direction.append(pygame.Vector2(1, i).rotate(-self.angle))             #angle 315° ~ 360°
+        for i in np.arange(0, 1.25, 0.25) :
+            self.direction.append(pygame.Vector2(1, -i).rotate(-self.angle))            #angle 0° ~ 45°
+        for i in np.arange(0, 1.25, 0.25) :
+            self.direction.append(pygame.Vector2(i, -1).rotate(-self.angle))            #angle 45° ~ 90°
+        for i in np.arange(0, 1.25, 0.25) :
+            self.direction.append(pygame.Vector2(-i, -1).rotate(-self.angle))           #angle 90° ~ 135°
+        for i in np.arange(0, 1.25, 0.25) :
+            self.direction.append(pygame.Vector2(-1, -i).rotate(-self.angle))           #angle 135° ~ 180°
+        for i in np.arange(0, 1.25, 0.25) :
+            self.direction.append(pygame.Vector2(-1, i).rotate(-self.angle))            #angle 180° ~ 225°
+        for i in np.arange(0, 1.25, 0.25) :
+            self.direction.append(pygame.Vector2(-i, 1).rotate(-self.angle))            #angle 180° ~ 225°
+            
+        final_shoot = []
+        for i in range(40) :
+            final_shoot.append(Projectile_Boss(self.rect.center, self.direction[i]))
+            self.groups()[0].add(final_shoot)
+            self.game.Bullets_boss.add(final_shoot)
+
+        """
+        shoot1 = Projectile(self.rect.center, self.direction1)
+        self.groups()[0].add(shoot1)
+        """
+    
+    def shoot(self) :
+        
+        shoot1 = Bullet_Boss(self.rect.centerx - 37, self.rect.centery + 150 )
+        shoot2 = Bullet_Boss(self.rect.centerx + 37, self.rect.centery + 150 )
+        self.groups()[0].add(shoot1)
+        self.groups()[0].add(shoot2)
+        self.game.Bullets_boss.add(shoot1)
+        self.game.Bullets_boss.add(shoot2)
+        """
+        shoot = Projectile_Boss(self.rect.center, self.direction1)
+        self.groups()[0].add(shoot)
+        self.game.Bullets_boss.add(shoot)
+        """
+
+    def kill_self(self) :
+        if self.health < 1 :
+            self.game.Boss1_IsAlive = False
             self.kill()
 
 

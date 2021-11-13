@@ -86,7 +86,6 @@ class Game :
             self.player.rect.bottom = WIN_HEIGHT - 50
 
         if self.player.live == 0 and not(self.death_expl.alive()):                          #Game over 
-            #self.playing = False
             self.show_init = True
 
     def Collision(self) :
@@ -204,7 +203,6 @@ class Game :
         self.draw()
 
         #print(f"{self.clock.get_fps()} FPS")        #Show FPS in terminal
-        
 
     def game_over(self) :
         pass
@@ -229,8 +227,8 @@ class Game :
             for i in range(0,5) :
                 self.new_rock()
             self.score = 0
-            self.new_boss2()
-            #self.new_boss1()
+            #self.new_boss2()
+            self.new_boss1()
 
 game = Game()
 game.new_game()

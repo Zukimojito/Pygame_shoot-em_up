@@ -262,29 +262,30 @@ class Boss1(pygame.sprite.Sprite):
         self.direction = []
         self.rect = self.image.get_rect(center=(WIN_WIDTH / 2, WIN_HEIGHT - 600))
         self.pos = pygame.Vector2(self.rect.center)
-        self.health = 100
+        self.health = 1000
         self.cooldown = 300
         self.last_time = pygame.time.get_ticks()
-        self.position_x = random.randint(0,(700 - self.rect.width))
-        self.position_y = random.randint(0,(800 - self.rect.height))
+        self.position_x = random.randint(0,(WIN_WIDTH - self.rect.width))
+        self.position_y = random.randint(0,(WIN_HEIGHT - self.rect.height))
         self.speed = 3
         self.rect_position = 0
 
     def update(self):
+        """
         now = pygame.time.get_ticks()
         if now - self.last_time > self.cooldown :
             self.last_time = now
-            self.shoot()
+            self.shoot()"""
 
         pressed = pygame.key.get_pressed()
 
         if pressed[pygame.K_p]:
             self.final_shot()
-
+        """
         if pressed[pygame.K_o]:
             self.angle += 3
         if pressed[pygame.K_u]:
-            self.angle -= 3
+            self.angle -= 3"""
         
         self.direction1 = pygame.Vector2(0, 1).rotate(-self.angle)
         self.image = pygame.transform.rotate(self.org_image, self.angle)
@@ -303,10 +304,12 @@ class Boss1(pygame.sprite.Sprite):
         elif self.rect.y > self.position_y :
             self.rect.y -= self.speed
 
-        if abs(self.rect.x - self.position_x) < self.speed :
-            self.position_x = random.randint(0,(700 - self.rect.width))
-        if abs(self.rect.y - self.position_y) < self.speed :
-            self.position_y = random.randint(0,(800 - self.rect.height))
+        if abs(self.rect.x - self.position_x) < self.speed/2 :
+            self.position_x = random.randint(0,(WIN_WIDTH - self.rect.width - 100))
+            self.shoot()
+        if abs(self.rect.y - self.position_y) < self.speed/2 :
+            self.position_y = random.randint(0,(WIN_HEIGHT - self.rect.height - 100))
+            self.shoot()
 
     def final_shot(self) :
         for i in np.arange(0, 1.25, 0.25) :
@@ -346,12 +349,14 @@ class Boss1(pygame.sprite.Sprite):
         self.game.Bullets_boss.add(shoot1)
         self.game.Bullets_boss.add(shoot2)"""
 
-        
-        shoot = Bullet_Boss_auto_direction(self.rect.center , self.direction1, self.angle)
+        shoot = Bullet_Boss_auto_direction((self.rect.centerx - 37, self.rect.centery + 130) , self.direction1, self.angle)
         self.groups()[0].add(shoot)
         self.game.Bullets_boss.add(shoot)
-        
 
+        shoot1 = Bullet_Boss_auto_direction((self.rect.centerx + 37, self.rect.centery + 130) , self.direction1, self.angle)
+        self.groups()[0].add(shoot1)
+        self.game.Bullets_boss.add(shoot1)
+        
     def kill_self(self) :
         if self.health < 1 :
             self.game.Boss1_IsAlive = False
@@ -412,7 +417,8 @@ class Bullet_Boss_auto_direction(pygame.sprite.Sprite):
         self.speed = 5
 
     def update(self):
-        self.pos += self.direction * self.speed
+        #self.pos += self.direction * self.speed
+        self.pos = (self.pos[0] + self.speed*self.direction[0], self.pos[1] + self.speed*self.direction[1])
         self.rect.center = self.pos
         if not pygame.display.get_surface().get_rect().contains(self.rect):
             self.kill()

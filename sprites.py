@@ -66,14 +66,6 @@ class Player(pygame.sprite.Sprite) :
             if self.now - self.last >= self.cooldown:
                 self.last = self.now
                 self.shoot()
-        if keys[pygame.K_LCTRL] :
-            self.Laser_shoot()
-    
-    def Laser_shoot(self) :
-        laser = Laser(self.rect.centerx, self.rect.top)
-        self.game.all_sprites.add(laser)
-        self.game.Bullets.add(laser)
-        
 
     def shoot(self) :
         bullet = Bullet(self.rect.centerx,self.rect.top)
@@ -144,24 +136,33 @@ class Bullet(pygame.sprite.Sprite) :
             self.kill()
 
 class Laser(pygame.sprite.Sprite) :
-    def __init__(self,x,y) :
+    def __init__(self,game , x, y, size) :
         pygame.sprite.Sprite.__init__(self)
-        self.Bullet_Img = pygame.image.load(os.path.join("Image/laser_anim","laser1.png")).convert()
-        #self.image = pygame.transform.scale(Bullet_Img,(40,10))
-        self.image = pygame.transform.rotate(self.Bullet_Img, 90)
-        self.image.set_colorkey(BLACK)
+        self.animation = Laser_Animation()
+        self.size = size
+        self.game = game
+        self.image = self.animation.laser_anim[self.size][0]
         self.rect = self.image.get_rect()
-        self.rect.centerx = x
-        self.rect.bottom = y
-        self.speedY = -10
-
+        self.frame = 0
+        self.last_update = pygame.time.get_ticks()
+        self.frame_rate = 50
+    
     def update(self) :
-        self.player_shoot()
+        now = pygame.time.get_ticks()
 
-    def player_shoot(self) :
-        self.rect.y += self.speedY
-        if self.rect.bottom < 0 :
-            self.kill()
+        self.rect.centerx = self.game.player.rect.centerx
+        self.rect.bottom = self.game.player.rect.top - 25
+
+        if now - self.last_update > self.frame_rate :
+            self.last_update = now
+            self.frame += 1
+            if self.frame == len(self.animation.laser_anim[self.size]) :
+                self.kill()
+            else :
+                self.image = self.animation.laser_anim[self.size][self.frame]
+                center = self.rect.center
+                self.rect = self.image.get_rect()
+                self.rect.center = center
 
 class Explosion(pygame.sprite.Sprite) :
     def __init__(self, center, size) :

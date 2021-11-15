@@ -64,7 +64,10 @@ class Game :
                     #self.player.shoot()                                                    #Player Shoot
                     pass
                 if event.key == pygame.K_c:
-                    self.player.Laser_shoot()
+                    laser = Laser(self, self.player.rect.centerx, self.player.rect.top , 'Laser_ult')
+                    self.all_sprites.add(laser)
+                    #self.Bullets.add(laser)
+                    
 
     def update(self) :
 
@@ -81,7 +84,7 @@ class Game :
             if (self.Boss1_IsAlive) :
                 self.new_boss1()
         """
-        if self.hidden and now - self.hide_time > 1500 :                                    #after 1 s we spawn player
+        if self.hidden and now - self.hide_time > 1500 :                                    #after 1.5 s we spawn player
             self.hidden = False
             self.all_sprites.add(self.player)
             self.player.rect.centerx = WIN_WIDTH / 2
@@ -223,6 +226,7 @@ class Game :
             self.Items = pygame.sprite.Group()
             self.the_boss = pygame.sprite.Group()
             self.Bullets_boss = pygame.sprite.Group()           #Bullets Boss
+            
             
             self.player = Player(self)
             self.all_sprites.add(self.player)

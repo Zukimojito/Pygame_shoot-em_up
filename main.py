@@ -6,7 +6,6 @@ from config import *
 from draw_texte import *
 from song import *
 
-
 class Game : 
     def __init__(self) :
         pygame.init()
@@ -64,8 +63,11 @@ class Game :
                 if event.key == pygame.K_SPACE :                                            #Press SPACE                                                
                     #self.player.shoot()                                                    #Player Shoot
                     pass
+                if event.key == pygame.K_c:
+                    self.player.Laser_shoot()
 
     def update(self) :
+
         self.all_sprites.update()
 
         now = pygame.time.get_ticks()
@@ -76,10 +78,10 @@ class Game :
         """
         if now - self.last_time_boss > 5000 :                                               #Spawn the boss1 every 5 sec
             self.last_time_boss = now
-            self.new_boss1()
+            if (self.Boss1_IsAlive) :
+                self.new_boss1()
         """
-
-        if self.hidden and now - self.hide_time > 1000 :                                    #after 1 s we spawn player
+        if self.hidden and now - self.hide_time > 1500 :                                    #after 1 s we spawn player
             self.hidden = False
             self.all_sprites.add(self.player)
             self.player.rect.centerx = WIN_WIDTH / 2
@@ -133,6 +135,7 @@ class Game :
                 explo = Explosion(i.rect.center, 'big')
                 self.all_sprites.add(explo)
                 self.boss1.health -= 10
+                self.score += 10
                 random.choice(explo_sound).play()
                 if self.boss1.health < 1 :
                     self.boss1.final_shot()
@@ -202,7 +205,7 @@ class Game :
         self.Collision()
         self.draw()
 
-        #print(f"{self.clock.get_fps()} FPS")        #Show FPS in terminal
+        print(f"{self.clock.get_fps()} FPS")        #Show FPS in terminal
 
     def game_over(self) :
         pass
@@ -228,7 +231,7 @@ class Game :
                 self.new_rock()
             self.score = 0
             #self.new_boss2()
-            self.new_boss1()
+            #self.new_boss1()
 
 game = Game()
 game.new_game()

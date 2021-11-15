@@ -6,6 +6,7 @@ import numpy as np
 from config import *
 from song import *
 from animation import *
+from math import cos, sin, pi
 
 
 class Player(pygame.sprite.Sprite) :
@@ -61,11 +62,18 @@ class Player(pygame.sprite.Sprite) :
         keys = pygame.key.get_pressed()
 
         self.now = pygame.time.get_ticks()
-        
         if keys[pygame.K_j] or keys[pygame.K_SPACE]:
             if self.now - self.last >= self.cooldown:
                 self.last = self.now
                 self.shoot()
+        if keys[pygame.K_LCTRL] :
+            self.Laser_shoot()
+    
+    def Laser_shoot(self) :
+        laser = Laser(self.rect.centerx, self.rect.top)
+        self.game.all_sprites.add(laser)
+        self.game.Bullets.add(laser)
+        
 
     def shoot(self) :
         bullet = Bullet(self.rect.centerx,self.rect.top)
@@ -79,7 +87,7 @@ class Rock(pygame.sprite.Sprite) :
         pygame.sprite.Sprite.__init__(self)
         Rock_Imgs = []
         for i in range(0,7) :
-            Rock_Imgs.append(pygame.image.load(os.path.join("Image",f"rock{i}.png")).convert())
+            Rock_Imgs.append(pygame.image.load(os.path.join("Image/Rock",f"rock{i}.png")).convert())
         self.image_original = random.choice(Rock_Imgs)
         self.image_original.set_colorkey(BLACK)
         self.image = self.image_original.copy()
@@ -117,11 +125,31 @@ class Bullet(pygame.sprite.Sprite) :
         pygame.sprite.Sprite.__init__(self)
         Bullet_Img = pygame.image.load(os.path.join("Image","19.png"))
         #self.image = pygame.transform.scale(Bullet_Img,(10,45))
-        self.image = pygame.transform.scale(Bullet_Img,(45,10))
+        self.image = pygame.transform.scale(Bullet_Img,(40,10))
         self.image = pygame.transform.rotate(self.image, 90)
         self.image.set_colorkey(BLACK)
         #self.image = pygame.Surface((10,20))
         #self.image.fill(TURQUOISE)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.bottom = y
+        self.speedY = -10
+
+    def update(self) :
+        self.player_shoot()
+
+    def player_shoot(self) :
+        self.rect.y += self.speedY
+        if self.rect.bottom < 0 :
+            self.kill()
+
+class Laser(pygame.sprite.Sprite) :
+    def __init__(self,x,y) :
+        pygame.sprite.Sprite.__init__(self)
+        self.Bullet_Img = pygame.image.load(os.path.join("Image/laser_anim","laser1.png")).convert()
+        #self.image = pygame.transform.scale(Bullet_Img,(40,10))
+        self.image = pygame.transform.rotate(self.Bullet_Img, 90)
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.bottom = y
@@ -165,28 +193,28 @@ class Explosion(pygame.sprite.Sprite) :
 class Boss2(pygame.sprite.Sprite):
     def __init__(self, game):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join("Image","boss2.png")).convert()
+        self.image = pygame.image.load(os.path.join("Image","boss2.png"))
         self.image.set_colorkey((0, 0, 0))
         self.org_image = self.image.copy()
         self.game = game
         self.angle = 0
         self.direction1 = pygame.Vector2(0, 0)
         self.direction = []
-        self.rect = self.image.get_rect(center=(WIN_WIDTH / 2, WIN_HEIGHT - 600))
+        self.rect = self.image.get_rect(center=(WIN_WIDTH / 2, -100))
         self.pos = pygame.Vector2(self.rect.center)
         self.health = 100
         self.cooldown = 300
         self.last_time = pygame.time.get_ticks()
+        self.random_rotate = random.randint(-90,90)
+        self.speed = 3
+        self.position_x = random.randint(0,(WIN_WIDTH - self.rect.width))
+        self.position_y = random.randint(0,(WIN_HEIGHT - self.rect.height - 300))
 
     def update(self):
         now = pygame.time.get_ticks()
         if now - self.last_time > self.cooldown :
             self.last_time = now
-            self.shoot()
             
-        """
-        self.angle %= 360
-        self.angle += 2"""
 
         pressed = pygame.key.get_pressed()
 
@@ -202,7 +230,44 @@ class Boss2(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.org_image, self.angle)
         self.rect = self.image.get_rect(center=self.rect.center)
 
+        self.movement()
+        self.rotate()
         self.kill_self()
+    
+    def movement(self) :
+
+        if self.rect.top < 0 :
+            self.rect.y += 1
+        else :
+            if self.rect.x < self.position_x :
+                self.rect.x += self.speed
+            elif self.rect.x > self.position_x :
+                self.rect.x -= self.speed
+            if self.rect.y < self.position_y :
+                self.rect.y += self.speed
+            elif self.rect.y > self.position_y :
+                self.rect.y -= self.speed
+
+            if abs(self.rect.x - self.position_x) < self.speed/2 :
+                self.position_x = random.randint(0,(WIN_WIDTH - self.rect.width))
+                self.shoot()
+                
+            if abs(self.rect.y - self.position_y) < self.speed/2 :
+                self.position_y = random.randint(0,(WIN_HEIGHT - self.rect.height - 300))
+                self.shoot()
+
+    def rotate(self) :
+        if self.rect.top < 0 :
+            pass
+        else :
+            if self.angle < self.random_rotate :
+                self.angle += 2
+            elif self.angle > self.random_rotate :
+                self.angle -= 2
+
+            if abs(self.angle - self.random_rotate) < self.speed/2 :
+                self.random_rotate = random.randint(-180,180)
+                self.shoot()
 
     def final_shot(self) :
         for i in np.arange(0, 1.25, 0.25) :
@@ -234,15 +299,14 @@ class Boss2(pygame.sprite.Sprite):
         """
     
     def shoot(self) :
-        
+        """
         shoot = Bullet_Boss(self.rect.centerx, self.rect.bottom)
         self.groups()[0].add(shoot)
-        self.game.Bullets_boss.add(shoot)
-        """
-        shoot = Projectile_Boss(self.rect.center, self.direction1)
+        self.game.Bullets_boss.add(shoot)"""
+
+        shoot = Bullet_Boss_auto_direction(self.rect.center , self.direction1, self.angle)
         self.groups()[0].add(shoot)
         self.game.Bullets_boss.add(shoot)
-        """
 
     def kill_self(self) :
         if self.health < 1 :
@@ -260,17 +324,17 @@ class Boss1(pygame.sprite.Sprite):
         self.angle = 0
         self.direction1 = pygame.Vector2(0, 0)
         self.direction = []
-        self.rect = self.image.get_rect(center=(WIN_WIDTH / 2, WIN_HEIGHT - 600))
+        self.rect = self.image.get_rect(center=(WIN_WIDTH / 2, -200))
         self.pos = pygame.Vector2(self.rect.center)
         self.health = 1000
         self.cooldown = 300
         self.last_time = pygame.time.get_ticks()
         self.position_x = random.randint(0,(WIN_WIDTH - self.rect.width))
-        self.position_y = random.randint(0,(WIN_HEIGHT - self.rect.height))
+        self.position_y = random.randint(0,(WIN_HEIGHT - self.rect.height - 100))
         self.speed = 3
-        self.rect_position = 0
 
     def update(self):
+        
         """
         now = pygame.time.get_ticks()
         if now - self.last_time > self.cooldown :
@@ -281,12 +345,7 @@ class Boss1(pygame.sprite.Sprite):
 
         if pressed[pygame.K_p]:
             self.final_shot()
-        """
-        if pressed[pygame.K_o]:
-            self.angle += 3
-        if pressed[pygame.K_u]:
-            self.angle -= 3"""
-        
+
         self.direction1 = pygame.Vector2(0, 1).rotate(-self.angle)
         self.image = pygame.transform.rotate(self.org_image, self.angle)
         self.rect = self.image.get_rect(center=self.rect.center)
@@ -295,21 +354,26 @@ class Boss1(pygame.sprite.Sprite):
         self.kill_self()
     
     def movement(self) :
-        if self.rect.x < self.position_x :
-            self.rect.x += self.speed
-        elif self.rect.x > self.position_x :
-            self.rect.x -= self.speed
-        if self.rect.y < self.position_y :
-            self.rect.y += self.speed
-        elif self.rect.y > self.position_y :
-            self.rect.y -= self.speed
 
-        if abs(self.rect.x - self.position_x) < self.speed/2 :
-            self.position_x = random.randint(0,(WIN_WIDTH - self.rect.width - 100))
-            self.shoot()
-        if abs(self.rect.y - self.position_y) < self.speed/2 :
-            self.position_y = random.randint(0,(WIN_HEIGHT - self.rect.height - 100))
-            self.shoot()
+        if self.rect.top < 0 :
+            self.rect.y += 1
+        else : 
+            if self.rect.x < self.position_x :
+                self.rect.x += self.speed
+            elif self.rect.x > self.position_x :
+                self.rect.x -= self.speed
+            if self.rect.y < self.position_y :
+                self.rect.y += self.speed
+            elif self.rect.y > self.position_y :
+                self.rect.y -= self.speed
+
+            if abs(self.rect.x - self.position_x) < self.speed/2 :
+                self.position_x = random.randint(0,(WIN_WIDTH - self.rect.width))
+                self.shoot()
+                
+            if abs(self.rect.y - self.position_y) < self.speed/2 :
+                self.position_y = random.randint(0,(WIN_HEIGHT - self.rect.height - 100))
+                self.shoot()
 
     def final_shot(self) :
         for i in np.arange(0, 1.25, 0.25) :
@@ -341,21 +405,21 @@ class Boss1(pygame.sprite.Sprite):
     
     def shoot(self) :
         
-        """
         shoot1 = Bullet_Boss(self.rect.centerx - 37, self.rect.centery + 150 )
         shoot2 = Bullet_Boss(self.rect.centerx + 37, self.rect.centery + 150 )
         self.groups()[0].add(shoot1)
         self.groups()[0].add(shoot2)
         self.game.Bullets_boss.add(shoot1)
-        self.game.Bullets_boss.add(shoot2)"""
+        self.game.Bullets_boss.add(shoot2)
 
+        """
         shoot = Bullet_Boss_auto_direction((self.rect.centerx - 37, self.rect.centery + 130) , self.direction1, self.angle)
         self.groups()[0].add(shoot)
         self.game.Bullets_boss.add(shoot)
 
         shoot1 = Bullet_Boss_auto_direction((self.rect.centerx + 37, self.rect.centery + 130) , self.direction1, self.angle)
         self.groups()[0].add(shoot1)
-        self.game.Bullets_boss.add(shoot1)
+        self.game.Bullets_boss.add(shoot1)"""
         
     def kill_self(self) :
         if self.health < 1 :
@@ -365,8 +429,8 @@ class Boss1(pygame.sprite.Sprite):
 class Bullet_Boss(pygame.sprite.Sprite) :
     def __init__(self,x,y) :
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join("Image","02.png"))
-        self.image = pygame.transform.scale(self.image,(45,10))
+        self.image = pygame.image.load(os.path.join("Image","11.png"))
+        self.image = pygame.transform.scale(self.image,(40,10))
         self.image = pygame.transform.rotate(self.image,-90)
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
@@ -404,26 +468,24 @@ class Projectile_Boss(pygame.sprite.Sprite):
 class Bullet_Boss_auto_direction(pygame.sprite.Sprite):
     def __init__(self, pos, direction, angle):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join("Image","11.png"))
-        self.image = pygame.transform.scale(self.image,(45,10))
+        self.image = pygame.image.load(os.path.join("Image","14.png"))
+        self.image = pygame.transform.scale(self.image,(40,10))
         self.image = pygame.transform.rotate(self.image, -90)
         self.image = pygame.transform.rotate(self.image, angle)
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect(center=pos)
         #self.rect = self.image.get_rect(centerx = x, bottom = y)
-        
         self.direction = direction.normalize()
         self.pos = pygame.Vector2(self.rect.center)
+
         self.speed = 5
 
     def update(self):
-        #self.pos += self.direction * self.speed
-        self.pos = (self.pos[0] + self.speed*self.direction[0], self.pos[1] + self.speed*self.direction[1])
+        self.pos += self.direction * self.speed
+        #self.pos = (self.pos[0] + self.speed*self.direction[0], self.pos[1] + self.speed*self.direction[1])
         self.rect.center = self.pos
         if not pygame.display.get_surface().get_rect().contains(self.rect):
             self.kill()
-
-    
 
 """
 class Boss1(pygame.sprite.Sprite) :

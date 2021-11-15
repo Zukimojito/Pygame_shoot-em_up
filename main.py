@@ -26,6 +26,7 @@ class Game :
         self.Boss1_IsAlive = False
         self.Boss2_IsAlive = False
         self.last_time_boss = pygame.time.get_ticks()
+        self.LaserIsActive = False
 
     def hide(self) :
         self.hidden = True
@@ -64,11 +65,10 @@ class Game :
                     #self.player.shoot()                                                    #Player Shoot
                     pass
                 if event.key == pygame.K_c:
-                    laser = Laser(self, self.player.rect.centerx, self.player.rect.top , 'Laser_ult')
-                    self.all_sprites.add(laser)
-                    #self.Bullets.add(laser)
-                    
-
+                    self.LaserIsActive = True
+                    self.laser = Laser(self, self.player.rect.centerx, self.player.rect.top , 'Laser_ult')
+                    self.all_sprites.add(self.laser)
+                    self.Laser_sprites.add(self.laser)
     def update(self) :
 
         self.all_sprites.update()
@@ -180,6 +180,17 @@ class Game :
                     self.player.health = 100
                     self.hide()
 
+        #Laser and Rock
+        if self.LaserIsActive :
+            hit8 = pygame.sprite.spritecollide(self.laser, self.Rocks, True, pygame.sprite.collide_mask)
+            for i in hit8 :
+                explo = Explosion(i.rect.center, 'big')
+                self.all_sprites.add(explo)
+                self.score += int(i.radius)
+                random.choice(explo_sound).play()
+                self.new_rock()
+
+
     def draw(self) :
         self.screen.fill(BLACK)                                                             #Draw the background colors
 
@@ -220,12 +231,13 @@ class Game :
                 pass
             #A New game starts
             self.show_init = False
-            self.all_sprites = pygame.sprite.Group()
-            self.Rocks = pygame.sprite.Group()
+            self.all_sprites = pygame.sprite.Group()            
+            self.Rocks = pygame.sprite.Group()                  #Rock
             self.Bullets = pygame.sprite.Group()                #Bullets player
-            self.Items = pygame.sprite.Group()
-            self.the_boss = pygame.sprite.Group()
+            self.Items = pygame.sprite.Group()                  #Items
+            self.the_boss = pygame.sprite.Group()               #The boss
             self.Bullets_boss = pygame.sprite.Group()           #Bullets Boss
+            self.Laser_sprites = pygame.sprite.Group()          #Laser
             
             
             self.player = Player(self)
@@ -235,7 +247,7 @@ class Game :
                 self.new_rock()
             self.score = 0
             #self.new_boss2()
-            #self.new_boss1()
+            self.new_boss1()
 
 game = Game()
 game.new_game()

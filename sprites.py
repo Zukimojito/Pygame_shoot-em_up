@@ -138,9 +138,9 @@ class Bullet(pygame.sprite.Sprite) :
 class Laser(pygame.sprite.Sprite) :
     def __init__(self,game , x, y, size) :
         pygame.sprite.Sprite.__init__(self)
-        self.animation = Laser_Animation()
-        self.size = size
         self.game = game
+        self.animation = Laser_Animation(self.game.player.rect.top)
+        self.size = size
         self.image = self.animation.laser_anim[self.size][0]
         self.rect = self.image.get_rect()
         self.frame = 0
@@ -158,6 +158,7 @@ class Laser(pygame.sprite.Sprite) :
             self.frame += 1
             if self.frame == len(self.animation.laser_anim[self.size]) :
                 self.kill()
+                self.game.LaserIsActive = False
             else :
                 self.image = self.animation.laser_anim[self.size][self.frame]
                 center = self.rect.center

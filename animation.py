@@ -21,12 +21,15 @@ class Animation :
             self.expl_anim['player'].append(self.player_expl_img)
 
 class Laser_Animation :
-    def __init__(self):
+    def __init__(self, game):
         self.laser_anim = {}
+        self.game = game
         self.laser_anim['Laser_ult'] = []
 
         #Laser animation
         for i in range(12) :
             self.laser_img = pygame.image.load(os.path.join("Image/Laser_anim",f"laser{i}.png")).convert()
+            self.laser_img = pygame.transform.scale(self.laser_img, (self.game + 50, 200))
+            self.laser_img = pygame.transform.rotate(self.laser_img,90)
             self.laser_img.set_colorkey(BLACK)
-            self.laser_anim['Laser_ult'].append(pygame.transform.rotate(self.laser_img,90))
+            self.laser_anim['Laser_ult'].append(self.laser_img)

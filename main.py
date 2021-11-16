@@ -27,6 +27,8 @@ class Game :
         self.Boss2_IsAlive = False
         self.last_time_boss = pygame.time.get_ticks()
         self.LaserIsActive = False
+        self.cooldown_anim_boss1 = pygame.time.get_ticks()
+        self.cooldown_anim_boss2 = pygame.time.get_ticks()
 
     def hide(self) :
         self.hidden = True
@@ -64,15 +66,13 @@ class Game :
                 if event.key == pygame.K_SPACE :                                            #Press SPACE                                                
                     #self.player.shoot()                                                    #Player Shoot
                     pass
-                if event.key == pygame.K_c:
-                    self.LaserIsActive = True
-                    self.laser = Laser(self, self.player.rect.centerx, self.player.rect.top , 'Laser_ult')
-                    self.all_sprites.add(self.laser)
-                    self.Laser_sprites.add(self.laser)
+                if event.key == pygame.K_LCTRL:
+                    Laser_sound.play(-1)
+                if event.key == pygame.K_c :
+                    pass
+                    
     def update(self) :
-
         self.all_sprites.update()
-
         now = pygame.time.get_ticks()
 
         if self.score > self.score_max :                                                    #Spawn the boss
@@ -94,6 +94,7 @@ class Game :
             self.show_init = True
 
     def Collision(self) :
+        now = pygame.time.get_ticks()
 
         #Rock and Bullets
         hits1 = pygame.sprite.groupcollide(self.Rocks, self.Bullets, True, True)             #Collision between Rock and Bullet, if they collide so we delete
@@ -190,6 +191,41 @@ class Game :
                 random.choice(explo_sound).play()
                 self.new_rock()
 
+        #Laser and Bullet_boss
+        if self.LaserIsActive :
+            hit9 = pygame.sprite.spritecollide(self.laser, self.Bullets_boss, True, pygame.sprite.collide_mask)
+            for i in hit9 :
+                explo = Explosion(i.rect.center, 'small')
+                self.all_sprites.add(explo)
+                random.choice(explo_sound).play()
+
+        #Laser and Boss2
+        if self.Boss2_IsAlive :
+            if self.LaserIsActive :                                                          
+                self.hits10 = pygame.sprite.spritecollide(self.laser, self.the_boss, False, pygame.sprite.collide_mask)
+                for i in self.hits10 :
+                    if now - self.cooldown_anim_boss2 > 200 :
+                        self.cooldown_anim_boss2 = now
+                        explo = Explosion(i.rect.center, 'big')
+                        self.all_sprites.add(explo)
+                        random.choice(explo_sound).play()
+                        self.boss2.health -= 10
+                    if not(self.Boss2_IsAlive):
+                        self.boss2.final_shot()
+
+        #Laser and Boss1
+        if self.Boss1_IsAlive :
+            if self.LaserIsActive :                                                          
+                self.hits11 = pygame.sprite.spritecollide(self.laser, self.the_boss, False, pygame.sprite.collide_mask)
+                for i in self.hits11 :
+                    if now - self.cooldown_anim_boss1 > 200 :
+                        self.cooldown_anim_boss1 = now
+                        explo = Explosion(i.rect.center, 'big')
+                        self.all_sprites.add(explo)
+                        random.choice(explo_sound).play()
+                        self.boss1.health -= 10
+                    if not(self.Boss1_IsAlive):
+                        self.boss1.final_shot()
 
     def draw(self) :
         self.screen.fill(BLACK)                                                             #Draw the background colors
@@ -242,6 +278,8 @@ class Game :
             
             self.player = Player(self)
             self.all_sprites.add(self.player)
+
+            self.laser = self.player.laser
 
             for i in range(0,5) :
                 self.new_rock()

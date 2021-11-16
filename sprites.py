@@ -28,11 +28,13 @@ class Player(pygame.sprite.Sprite) :
         self.cooldown = 100
         self.health = 100
         self.live = 3
+        self.laser = Laser(self,'Laser_ult')
 
     def update(self) :
 
         self.movement()
         self.bullet()
+        self.laser_shoot()
 
     def movement(self) :
         keys = pygame.key.get_pressed()
@@ -73,6 +75,20 @@ class Player(pygame.sprite.Sprite) :
         self.game.Bullets.add(bullet)
         Shoot_sound.play()
         #return bullet
+
+    def laser_shoot(self) :
+        keys = pygame.key.get_pressed()
+        now = pygame.time.get_ticks()
+        
+        if keys[pygame.K_LCTRL] :
+            self.game.LaserIsActive = True
+            self.game.all_sprites.add(self.laser)
+            self.game.Laser_sprites.add(self.laser)
+        else :
+            self.game.LaserIsActive = False
+            self.laser.kill()
+            Laser_sound.stop()
+            
 
 class Rock(pygame.sprite.Sprite) :
     def __init__(self) :
@@ -136,17 +152,36 @@ class Bullet(pygame.sprite.Sprite) :
             self.kill()
 
 class Laser(pygame.sprite.Sprite) :
-    def __init__(self,game , x, y, size) :
+    def __init__(self, game, size) :
         pygame.sprite.Sprite.__init__(self)
         self.game = game
-        self.animation = Laser_Animation(self.game.player.rect.top)
+        self.animation = Laser_Animation(self)
         self.size = size
         self.image = self.animation.laser_anim[self.size][0]
-        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect(center = self.game.rect.center, bottom = self.game.rect.top - 25)
         self.frame = 0
         self.last_update = pygame.time.get_ticks()
-        self.frame_rate = 50
-    
+        self.frame_rate = 100
+
+    #For key_pressed
+    def update(self) :
+        now = pygame.time.get_ticks()
+
+        self.rect.centerx = self.game.rect.centerx
+        self.rect.bottom = self.game.rect.top - 25
+
+        if now - self.last_update > self.frame_rate :
+            self.last_update = now
+            self.frame += 1
+            if self.frame == len(self.animation.laser_anim[self.size]) :
+                self.frame = 0
+            else :
+                self.image = self.animation.laser_anim[self.size][self.frame]
+                center = self.rect.center
+                self.rect = self.image.get_rect()
+                self.rect.center = center
+    """
+    #For one click 
     def update(self) :
         now = pygame.time.get_ticks()
 
@@ -159,11 +194,12 @@ class Laser(pygame.sprite.Sprite) :
             if self.frame == len(self.animation.laser_anim[self.size]) :
                 self.kill()
                 self.game.LaserIsActive = False
+                Laser_sound.stop()
             else :
                 self.image = self.animation.laser_anim[self.size][self.frame]
                 center = self.rect.center
                 self.rect = self.image.get_rect()
-                self.rect.center = center
+                self.rect.center = center"""
 
 class Explosion(pygame.sprite.Sprite) :
     def __init__(self, center, size) :

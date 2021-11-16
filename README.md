@@ -6,4 +6,5 @@ Control :
 Press ↑ ↓ → or ← to move
 
 Press SPACE to shoot
+
 Press LCtrl to use Laser

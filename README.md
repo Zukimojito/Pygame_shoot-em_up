@@ -1,5 +1,7 @@
 # Game created in python (Pygame)
-# A shooting game
+# A shooting game 
+
+Game Name : Swallowed Star
 
 Control : 
 

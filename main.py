@@ -29,6 +29,7 @@ class Game :
         self.LaserIsActive = False
         self.cooldown_anim_boss1 = pygame.time.get_ticks()
         self.cooldown_anim_boss2 = pygame.time.get_ticks()
+        self.laser = Laser(self,'Laser_ult')
 
     def hide(self) :
         self.hidden = True
@@ -49,6 +50,7 @@ class Game :
         self.boss1 = Boss1(self)
         self.all_sprites.add(self.boss1)
         self.the_boss.add(self.boss1)
+        #Boss1_rire.play()
 
     def new_boss2(self) :
         self.Boss2_IsAlive = True
@@ -70,7 +72,17 @@ class Game :
                     Laser_sound.play(-1)
                 if event.key == pygame.K_c :
                     pass
-                    
+        keys = pygame.key.get_pressed()
+        
+        if keys[pygame.K_LCTRL] :
+            self.LaserIsActive = True
+            self.all_sprites.add(self.laser)
+            self.Laser_sprites.add(self.laser)
+        else :
+            self.LaserIsActive = False
+            self.laser.kill()
+            Laser_sound.stop()
+
     def update(self) :
         self.all_sprites.update()
         now = pygame.time.get_ticks()
@@ -275,11 +287,8 @@ class Game :
             self.Bullets_boss = pygame.sprite.Group()           #Bullets Boss
             self.Laser_sprites = pygame.sprite.Group()          #Laser
             
-            
             self.player = Player(self)
             self.all_sprites.add(self.player)
-
-            self.laser = self.player.laser
 
             for i in range(0,5) :
                 self.new_rock()

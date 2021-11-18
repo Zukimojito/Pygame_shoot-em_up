@@ -28,13 +28,11 @@ class Player(pygame.sprite.Sprite) :
         self.cooldown = 100
         self.health = 100
         self.live = 3
-        self.laser = Laser(self,'Laser_ult')
 
     def update(self) :
 
         self.movement()
         self.bullet()
-        self.laser_shoot()
 
     def movement(self) :
         keys = pygame.key.get_pressed()
@@ -74,11 +72,9 @@ class Player(pygame.sprite.Sprite) :
         self.game.all_sprites.add(bullet)
         self.game.Bullets.add(bullet)
         Shoot_sound.play()
-        #return bullet
-
+"""
     def laser_shoot(self) :
         keys = pygame.key.get_pressed()
-        now = pygame.time.get_ticks()
         
         if keys[pygame.K_LCTRL] :
             self.game.LaserIsActive = True
@@ -87,8 +83,7 @@ class Player(pygame.sprite.Sprite) :
         else :
             self.game.LaserIsActive = False
             self.laser.kill()
-            Laser_sound.stop()
-            
+            Laser_sound.stop()"""
 
 class Rock(pygame.sprite.Sprite) :
     def __init__(self) :
@@ -155,10 +150,10 @@ class Laser(pygame.sprite.Sprite) :
     def __init__(self, game, size) :
         pygame.sprite.Sprite.__init__(self)
         self.game = game
-        self.animation = Laser_Animation(self)
+        self.animation = Laser_Animation()
         self.size = size
         self.image = self.animation.laser_anim[self.size][0]
-        self.rect = self.image.get_rect(center = self.game.rect.center, bottom = self.game.rect.top - 25)
+        self.rect = self.image.get_rect()
         self.frame = 0
         self.last_update = pygame.time.get_ticks()
         self.frame_rate = 100
@@ -167,8 +162,8 @@ class Laser(pygame.sprite.Sprite) :
     def update(self) :
         now = pygame.time.get_ticks()
 
-        self.rect.centerx = self.game.rect.centerx
-        self.rect.bottom = self.game.rect.top - 25
+        self.rect.centerx = self.game.player.rect.centerx
+        self.rect.bottom = self.game.player.rect.top - 25
 
         if now - self.last_update > self.frame_rate :
             self.last_update = now

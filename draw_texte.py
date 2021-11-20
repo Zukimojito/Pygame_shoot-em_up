@@ -23,6 +23,8 @@ class Draw_screen :
     def Draw_health(self, surf, hp, x, y) :
         if hp < 0 :
             hp = 0
+        if hp > 100 :
+            hp = 100
         BAR_LENGTH = 100
         BAR_HEIGHT = 10
         fill = (hp/100) * BAR_LENGTH
@@ -34,6 +36,8 @@ class Draw_screen :
     def Draw_Mana(self, surf, mp, x, y) :
         if mp < 0 :
             mp = 0
+        if mp > 200 :
+            mp = 200
         BAR_LENGTH = 100
         BAR_HEIGHT = 10
         fill = (mp/200) * BAR_LENGTH

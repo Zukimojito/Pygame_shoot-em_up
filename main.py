@@ -95,14 +95,18 @@ class Game :
         now = pygame.time.get_ticks()
 
         if self.score > self.score_max :                                                    #Spawn the boss
-            self.new_boss2()
-            self.score_max += 1000
-        """
-        if now - self.last_time_boss > 5000 :                                               #Spawn the boss1 every 5 sec
+            while not(self.Boss2_IsAlive) :
+                self.new_boss2()
+                self.score_max += 1000
+                break
+        
+        if now - self.last_time_boss > 60000 :                                               #Spawn the boss1 every 5 sec
             self.last_time_boss = now
-            if (self.Boss1_IsAlive) :
+
+            while not(self.Boss1_IsAlive) :
                 self.new_boss1()
-        """
+                break
+        
         if self.hidden and now - self.hide_time > 1500 :                                    #after 1.5 s we spawn player
             self.hidden = False
             self.all_sprites.add(self.player)
@@ -123,6 +127,7 @@ class Game :
             self.score += int(i.radius)
             random.choice(explo_sound).play()
             self.new_rock()
+            self.player.mana += 5
 
         #Player and Rock
         if not(self.hidden) :                                                                   #activate collision by checking if player still has health
@@ -150,6 +155,8 @@ class Game :
                 self.boss2.health -= 10
                 if self.boss2.health < 1 :
                     self.boss2.final_shot()
+                    explo = Explosion(i.rect.center, 'player')
+                    self.all_sprites.add(explo)
         
         #Boss1 and Bullet_player
         if self.Boss1_IsAlive :
@@ -161,6 +168,8 @@ class Game :
                 self.score += 10
                 random.choice(explo_sound).play()
                 if self.boss1.health < 1 :
+                    explo = Explosion(i.rect.center, 'player')
+                    self.all_sprites.add(explo)
                     self.boss1.final_shot()
 
         

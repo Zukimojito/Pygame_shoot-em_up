@@ -35,6 +35,7 @@ class Player(pygame.sprite.Sprite) :
 
         self.movement()
         self.bullet()
+        self.stats()
 
     def movement(self) :
         keys = pygame.key.get_pressed()
@@ -74,6 +75,15 @@ class Player(pygame.sprite.Sprite) :
         self.game.all_sprites.add(bullet)
         self.game.Bullets.add(bullet)
         Shoot_sound.play()
+
+    def stats(self) :
+        if self.health > 100 :
+            self.health = 100
+
+        if self.mana > 200 :
+            self.mana = 200
+        elif self.mana < 0 :
+            self.mana = 0
 """
     def laser_shoot(self) :
         keys = pygame.key.get_pressed()
@@ -158,7 +168,7 @@ class Laser(pygame.sprite.Sprite) :
         self.rect = self.image.get_rect()
         self.frame = 0
         self.last_update = pygame.time.get_ticks()
-        self.frame_rate = 100
+        self.frame_rate = 30
 
     #For key_pressed
     def update(self) :
@@ -250,7 +260,6 @@ class Boss2(pygame.sprite.Sprite):
         if now - self.last_time > self.cooldown :
             self.last_time = now
             
-
         pressed = pygame.key.get_pressed()
 
         if pressed[pygame.K_p]:
@@ -362,7 +371,7 @@ class Boss1(pygame.sprite.Sprite):
         self.direction = []
         self.rect = self.image.get_rect(center=(WIN_WIDTH / 2, -200))
         self.pos = pygame.Vector2(self.rect.center)
-        self.health = 1000
+        self.health = 100
         self.cooldown = 300
         self.last_time = pygame.time.get_ticks()
         self.position_x = random.randint(0,(WIN_WIDTH - self.rect.width))

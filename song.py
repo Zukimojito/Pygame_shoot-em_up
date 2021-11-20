@@ -8,7 +8,7 @@ Death_sound = pygame.mixer.Sound(os.path.join("Sound","rumble.ogg"))
 Heal_sound = pygame.mixer.Sound(os.path.join("Sound","pow0.wav"))
 Boost_sound = pygame.mixer.Sound(os.path.join("Sound","pow1.wav"))
 Laser_sound = pygame.mixer.Sound(os.path.join("Sound","laser.mp3"))
-Boss1_rire = pygame.mixer.Sound(os.path.join("Sound","rire.mp3"))
+
 
 explo_sound = [
     pygame.mixer.Sound(os.path.join("Sound","expl0.wav")),

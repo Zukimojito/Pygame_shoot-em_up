@@ -1,3 +1,4 @@
+from typing import final
 import pygame
 import math
 import random
@@ -27,6 +28,7 @@ class Player(pygame.sprite.Sprite) :
         self.last = pygame.time.get_ticks()
         self.cooldown = 100
         self.health = 100
+        self.mana = 200
         self.live = 3
 
     def update(self) :
@@ -323,7 +325,8 @@ class Boss2(pygame.sprite.Sprite):
         final_shoot = []
         for i in range(40) :
             final_shoot.append(Projectile_Boss(self.rect.center, self.direction[i]))
-            self.groups()[0].add(final_shoot)
+            #self.groups()[0].add(final_shoot)
+            self.game.all_sprites.add(final_shoot)
             self.game.Bullets_boss.add(final_shoot)
 
         """

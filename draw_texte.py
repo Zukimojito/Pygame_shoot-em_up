@@ -30,6 +30,17 @@ class Draw_screen :
         fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
         pygame.draw.rect(surf, GREEN, fill_rect)
         pygame.draw.rect(surf, WHITE, outline_rect, 1)
+
+    def Draw_Mana(self, surf, mp, x, y) :
+        if mp < 0 :
+            mp = 0
+        BAR_LENGTH = 100
+        BAR_HEIGHT = 10
+        fill = (mp/200) * BAR_LENGTH
+        outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
+        fill_rect = pygame.Rect(x, y, fill,  BAR_HEIGHT)
+        pygame.draw.rect(surf, PURPLE, fill_rect)
+        pygame.draw.rect(surf, WHITE, outline_rect, 1)
     
     def Draw_live(self, surf, lives, img, x, y) :
 

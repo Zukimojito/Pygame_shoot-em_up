@@ -69,15 +69,22 @@ class Game :
                     #self.player.shoot()                                                    #Player Shoot
                     pass
                 if event.key == pygame.K_LCTRL:
-                    Laser_sound.play(-1)
+                    if self.player.mana > 0 :
+                        Laser_sound.play(-1)
                 if event.key == pygame.K_c :
                     pass
         keys = pygame.key.get_pressed()
         
         if keys[pygame.K_LCTRL] :
-            self.LaserIsActive = True
-            self.all_sprites.add(self.laser)
-            self.Laser_sprites.add(self.laser)
+            self.player.mana -= 1
+            if self.player.mana > 0 :
+                self.LaserIsActive = True
+                self.all_sprites.add(self.laser)
+                self.Laser_sprites.add(self.laser)
+            else :
+                self.LaserIsActive = False
+                self.laser.kill()
+                Laser_sound.stop()
         else :
             self.LaserIsActive = False
             self.laser.kill()
@@ -212,7 +219,7 @@ class Game :
                 random.choice(explo_sound).play()
 
         #Laser and Boss2
-        if self.Boss2_IsAlive :
+        if self.Boss2_IsAlive  :
             if self.LaserIsActive :                                                          
                 self.hits10 = pygame.sprite.spritecollide(self.laser, self.the_boss, False, pygame.sprite.collide_mask)
                 for i in self.hits10 :
@@ -222,7 +229,7 @@ class Game :
                         self.all_sprites.add(explo)
                         random.choice(explo_sound).play()
                         self.boss2.health -= 10
-                    if not(self.Boss2_IsAlive):
+                    if not(self.Boss2_IsAlive) :
                         self.boss2.final_shot()
 
         #Laser and Boss1
@@ -254,6 +261,7 @@ class Game :
         
         self.draw_screen.Draw_score(self.screen, str(self.score), 20, WIN_WIDTH/2, 10)      #Draw Score on center-top screen
         self.draw_screen.Draw_health(self.screen, self.player.health, 5, 10)                #Draw health on screen
+        self.draw_screen.Draw_Mana(self.screen, self.player.mana, 5, 20)
         self.draw_screen.Draw_live(self.screen, self.player.live, self.draw_screen.Player_Lives_Img, WIN_WIDTH - 100, 15)           #Draw Lives on screen
 
         self.clock.tick(FPS)                                                                #FPS by sec
@@ -293,8 +301,8 @@ class Game :
             for i in range(0,5) :
                 self.new_rock()
             self.score = 0
-            #self.new_boss2()
-            self.new_boss1()
+            self.new_boss2()
+            #self.new_boss1()
 
 game = Game()
 game.new_game()

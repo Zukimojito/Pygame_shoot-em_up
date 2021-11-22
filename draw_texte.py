@@ -65,8 +65,10 @@ class Draw_screen :
     def Draw_init(self) :
         self.game.screen.blit(self.Background_Img_Menu,(0,0))
         self.draw_text(self.game.screen,'Swallowed Star', 64, WIN_WIDTH/2, WIN_HEIGHT/4)
-        self.draw_text(self.game.screen,'Press ← or → to move', 28, WIN_WIDTH/2, WIN_HEIGHT/2)
-        self.draw_text(self.game.screen,'Press SPACE to shoot', 28, WIN_WIDTH/2, WIN_HEIGHT/1.5)
+        self.draw_text(self.game.screen,'Press ↑ ↓ ← or → to move', 28, WIN_WIDTH/2, WIN_HEIGHT/2 - 100)
+        self.draw_text(self.game.screen,'Press SPACE to shoot', 28, WIN_WIDTH/2, WIN_HEIGHT/1.75 - 100)
+        self.draw_text(self.game.screen,'Press Ctrl to ult', 28, WIN_WIDTH/2, WIN_HEIGHT/1.75 - 50)
+        self.draw_text(self.game.screen,'Press C to summoner', 28, WIN_WIDTH/2, WIN_HEIGHT/1.75)
         self.draw_text(self.game.screen,'by Zukimojito', 12, WIN_WIDTH/1.075, WIN_HEIGHT-20)
         pygame.display.update()
         self.waiting = True

@@ -7,9 +7,9 @@ from config import *
 class Draw_screen :
     def __init__(self, game) :
         self.game = game
-        self.Player_Lives_Img = pygame.image.load(os.path.join("Image","heart.png")).convert()
+        self.Player_Lives_Img = pygame.image.load(os.path.join("Image","player.png")).convert_alpha()
         self.Player_Lives_Img = pygame.transform.scale(self.Player_Lives_Img,(25,25))
-        self.Player_Lives_Img.set_colorkey(WHITE)
+        #self.Player_Lives_Img.set_colorkey(WHITE)
         self.Background_Img_Menu = pygame.image.load(os.path.join("Image","Background1.jpg")).convert()
 
     def Draw_score(self, surf, text, size, x, y) :

@@ -15,8 +15,8 @@ class Player(pygame.sprite.Sprite) :
         self.game = game
         pygame.sprite.Sprite.__init__(self)
         #Player_Img = pygame.image.load(os.path.join("Image","player.png")).convert_alpha()      # keep transparency
-        self.image = pygame.image.load(os.path.join("Image","player.png")).convert()
-        self.image = pygame.transform.scale(self.image,(40,25))
+        self.image = pygame.image.load(os.path.join("Image","player.png"))
+        self.image = pygame.transform.scale(self.image,(100,100))
         self.image.set_colorkey(BLACK)     #Remove background BLACK colors 
         #self.image = pygame.Surface((50,35))
         #self.image.fill(GREEN)
@@ -63,12 +63,13 @@ class Player(pygame.sprite.Sprite) :
     
     def bullet(self) :
         keys = pygame.key.get_pressed()
-
         self.now = pygame.time.get_ticks()
-        if keys[pygame.K_j] or keys[pygame.K_SPACE]:
-            if self.now - self.last >= self.cooldown:
-                self.last = self.now
-                self.shoot()
+
+        if not(self.game.LaserIsActive) :
+            if keys[pygame.K_j] or keys[pygame.K_SPACE]:
+                if self.now - self.last >= self.cooldown:
+                    self.last = self.now
+                    self.shoot()
 
     def shoot(self) :
         bullet = Bullet(self.rect.centerx,self.rect.top)
@@ -441,7 +442,7 @@ class Boss1(pygame.sprite.Sprite):
         final_shoot = []
         for i in range(40) :
             final_shoot.append(Projectile_Boss(self.rect.center, self.direction[i]))
-            self.groups()[0].add(final_shoot)
+            self.game.all_sprites.add(final_shoot)
             self.game.Bullets_boss.add(final_shoot)
         """
         shoot1 = Projectile(self.rect.center, self.direction1)

@@ -13,5 +13,5 @@ PURPLE = (148,0,211)
 
 FPS = 60
 
-speedX = 5
-speedY = 4
+#speedX = 5
+#speedY = 4

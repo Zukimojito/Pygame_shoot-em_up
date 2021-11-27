@@ -25,13 +25,25 @@ class Player(pygame.sprite.Sprite) :
         #pygame.draw.circle(self.image, RED, self.rect.center , self.radius)
         self.rect.centerx = WIN_WIDTH / 2
         self.rect.bottom = WIN_HEIGHT - 50
+        self.speedX = 5
+        self.speedY = 4
         self.last = pygame.time.get_ticks()
         self.cooldown = 100
         self.health = 100
         self.mana = 200
         self.live = 3
+        self.sbire = 0
+        self.boost = 1
+        self.boost_time = 0
 
     def update(self) :
+        now = pygame.time.get_ticks()
+        if self.boost < 1 :
+            self.boost = 1
+
+        if self.boost > 1 and now - self.boost_time > 5000 :
+            self.boost -= 1
+            self.boost_time = now
 
         self.movement()
         self.bullet()
@@ -40,17 +52,22 @@ class Player(pygame.sprite.Sprite) :
     def movement(self) :
         keys = pygame.key.get_pressed()
 
+        if self.speedX > 7 :
+            self.speedX = 7
+        if self.speedY > 6 :
+            self.speedY = 6
+
         if keys[pygame.K_LEFT] or keys[pygame.K_q] :
-            self.rect.x -= speedX
+            self.rect.x -= self.speedX
 
         if keys[pygame.K_RIGHT] or keys[pygame.K_d] :
-            self.rect.x += speedX
+            self.rect.x += self.speedX
 
         if keys[pygame.K_UP] or keys[pygame.K_z] :
-            self.rect.y -= speedY
+            self.rect.y -= self.speedY
         
         if keys[pygame.K_DOWN] or keys[pygame.K_s] :
-            self.rect.y += speedY
+            self.rect.y += self.speedY
 
         if self.rect.right > WIN_WIDTH :
             self.rect.right = WIN_WIDTH
@@ -72,10 +89,39 @@ class Player(pygame.sprite.Sprite) :
                     self.shoot()
 
     def shoot(self) :
-        bullet = Bullet(self.rect.centerx,self.rect.top)
-        self.game.all_sprites.add(bullet)
-        self.game.Bullets.add(bullet)
-        Shoot_sound.play()
+
+        if self.boost == 1 :
+            bullet = Bullet(self.rect.centerx,self.rect.top)
+            self.game.all_sprites.add(bullet)
+            self.game.Bullets.add(bullet)
+            Shoot_sound.play()
+        elif self.boost == 2 :
+            bullet1 = Bullet(self.rect.left,self.rect.top)
+            bullet2 = Bullet(self.rect.right,self.rect.top)
+            self.game.all_sprites.add(bullet1)
+            self.game.all_sprites.add(bullet2)
+            self.game.Bullets.add(bullet1)
+            self.game.Bullets.add(bullet2)
+            Shoot_sound.play()
+        elif self.boost > 2 :
+            bullet1 = Bullet(self.rect.left,self.rect.top)
+            bullet2 = Bullet(self.rect.right,self.rect.top)
+            bullet3 = Bullet(self.rect.centerx, self.rect.top)
+            self.game.all_sprites.add(bullet1)
+            self.game.all_sprites.add(bullet2)
+            self.game.all_sprites.add(bullet3)
+            self.game.Bullets.add(bullet1)
+            self.game.Bullets.add(bullet2)
+            self.game.Bullets.add(bullet3)
+            Shoot_sound.play()
+
+
+
+
+    
+    def GunUp(self) :
+        self.boost += 1
+        self.boost_time = pygame.time.get_tick()
 
     def stats(self) :
         if self.health > 100 :
@@ -533,38 +579,30 @@ class Bullet_Boss_auto_direction(pygame.sprite.Sprite):
         if not pygame.display.get_surface().get_rect().contains(self.rect):
             self.kill()
 
-"""
-class Boss1(pygame.sprite.Sprite) :
-    def __init__(self, game):
+class Item(pygame.sprite.Sprite) :
+    def __init__(self, center) :
         pygame.sprite.Sprite.__init__(self)
-        self.game = game
-        self.image = pygame.image.load(os.path.join("Image","boss1.png")).convert()
+        item_drop = {}
+        item_drop['potion'] = pygame.image.load(os.path.join("Image/Item","potion.png"))
+        item_drop['sbire'] = pygame.image.load(os.path.join("Image/Item","sbire.png"))
+        item_drop['speed'] = pygame.image.load(os.path.join("Image/item","milkway.png"))
+        item_drop['boost'] = pygame.image.load(os.path.join("Image/Item","trollpng.png"))
+        #item_drop['dio'] = pygame.image.load(os.path.join("Image/Item","dio.png"))
+        self.type = random.choice(['potion','sbire','speed','boost'])
+        self.image = item_drop[self.type]
         self.image.set_colorkey(BLACK)
-        self.rect = self.image.get_rect()
-        self.health = 100
-        self.cooldown = 250
-        self.last = pygame.time.get_ticks()
-
-        self.rect.centerx = WIN_WIDTH / 2
-        self.rect.bottom = WIN_HEIGHT - 600
+        self.rect = self.image.get_rect(center = center)
+        self.speedy = 5
     
     def update(self) :
-        self.now = pygame.time.get_ticks()
+        self.movement()
+        self.self_kill()
+    
+    def movement(self) :
+        self.rect.y += self.speedy
 
-        if self.now - self.last >= self.cooldown:
-                self.last = self.now
-                self.shoot()
-
-        self.kill_self()
-
-    def shoot(self) :
-        bullet_boss = Bullet_Boss(self.rect.centerx,self.rect.bottom)
-        self.game.all_sprites.add(bullet_boss)
-        self.game.Bullets_boss.add(bullet_boss)
-        Shoot_sound.play()
-
-        
-    def kill_self(self) :
-        if self.health < 1 :
+    def self_kill(self) :
+        if self.rect.top > WIN_HEIGHT :
             self.kill()
-"""
+
+

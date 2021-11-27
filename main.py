@@ -128,6 +128,11 @@ class Game :
             random.choice(explo_sound).play()
             self.new_rock()
             self.player.mana += 5
+            #Item 
+            if random.random() > 0.2 :
+                item = Item(i.rect.center)
+                self.all_sprites.add(item)
+                self.Items.add(item)
 
         #Player and Rock
         if not(self.hidden) :                                                                   #activate collision by checking if player still has health
@@ -254,6 +259,19 @@ class Game :
                         self.boss1.health -= 10
                     if not(self.Boss1_IsAlive):
                         self.boss1.final_shot()
+        
+        #Player and Item
+        hits12 = pygame.sprite.spritecollide(self.player, self.Items, True, pygame.sprite.collide_mask)
+        for i in hits12 :
+            if i.type == 'potion' :
+                self.player.health += random.randint(10,30)
+            if i.type == 'sbire' :
+                self.player.sbire += 1
+            if i.type == 'speed' :
+                self.player.speedX += 2
+                self.player.speedY += 2
+            if i.type == 'boost' :
+                self.player.boost += 1
 
     def draw(self) :
         self.screen.fill(BLACK)                                                             #Draw the background colors

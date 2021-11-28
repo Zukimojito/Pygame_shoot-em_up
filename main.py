@@ -30,6 +30,7 @@ class Game :
         self.cooldown_anim_boss1 = pygame.time.get_ticks()
         self.cooldown_anim_boss2 = pygame.time.get_ticks()
         self.laser = Laser(self,'Laser_ult')
+        self.maximum_sbire = 0
 
     def hide(self) :
         self.hidden = True
@@ -60,7 +61,6 @@ class Game :
         self.the_boss.add(self.boss2)
     
     def new_sbire(self) :
-
         self.sbire = Sbire(self)
         self.all_sprites.add(self.sbire)
         self.Allies.add(self.sbire)
@@ -85,7 +85,10 @@ class Game :
                     if self.player.mana > 0 :
                         Laser_sound.play(-1)
                 if event.key == pygame.K_c :
-                    self.new_sbire()
+                    if self.player.nb_sbire > 0 and self.maximum_sbire < 5:
+                        self.new_sbire()
+                        self.player.nb_sbire -= 1
+                        self.maximum_sbire += 1
         keys = pygame.key.get_pressed()
         
         if keys[pygame.K_LCTRL] :
@@ -113,7 +116,7 @@ class Game :
                 self.score_max += 1000
                 break
         
-        if now - self.last_time_boss > 60000 :                                               #Spawn the boss1 every 5 sec
+        if now - self.last_time_boss > 60000 :                                               #Spawn the boss1 every 60 sec
             self.last_time_boss = now
 
             while not(self.Boss1_IsAlive) :
@@ -277,7 +280,8 @@ class Game :
                 self.player.health += random.randint(10,30)
                 random.choice(item_sound).play()
             if i.type == 'sbire' :
-                self.player.sbire += 1
+                if self.player.nb_sbire < 5 :
+                    self.player.nb_sbire += 1
                 random.choice(item_sound).play()
             if i.type == 'speed' :
                 self.player.speedX += 1
@@ -287,6 +291,31 @@ class Game :
             if i.type == 'boost' :
                 self.player.boost += 1
                 random.choice(item_sound).play()
+
+        #Sbire and Rock
+        hits13 = pygame.sprite.groupcollide(self.Allies, self.Rocks, True, True, pygame.sprite.collide_circle)
+        for i in hits13 :
+            self.new_rock()
+            self.death_expl = Explosion(i.rect.center, 'player')
+            self.all_sprites.add(self.death_expl)
+            Death_sound.play()
+            self.maximum_sbire -= 1
+        
+        #Sbire and Bullet_Boss2
+        hit14 = pygame.sprite.groupcollide(self.Allies, self.Bullets_boss, True, True, pygame.sprite.collide_mask)
+        for i in hit14 :
+            self.death_expl = Explosion(i.rect.center, 'player')
+            self.all_sprites.add(self.death_expl)
+            Death_sound.play()
+            self.maximum_sbire -= 1
+
+        #Sbire and Boss1, Boss2
+        hit15 = pygame.sprite.groupcollide(self.Allies, self.the_boss, True, False, pygame.sprite.collide_mask)
+        for i in hit15 :
+            self.death_expl = Explosion(i.rect.center, 'player')
+            self.all_sprites.add(self.death_expl)
+            Death_sound.play()
+            self.maximum_sbire -= 1
 
     def draw(self) :
         self.screen.fill(BLACK)                                                             #Draw the background colors
@@ -305,6 +334,7 @@ class Game :
         self.draw_screen.Draw_health(self.screen, self.player.health, 5, 10)                #Draw health on screen
         self.draw_screen.Draw_Mana(self.screen, self.player.mana, 5, 20)
         self.draw_screen.Draw_live(self.screen, self.player.live, self.draw_screen.Player_Lives_Img, WIN_WIDTH - 100, 15)           #Draw Lives on screen
+        self.draw_screen.Draw_sbire(self.screen, self.player.nb_sbire, self.draw_screen.Sbire_Lives_Img, 0, WIN_HEIGHT - 30)
 
         self.clock.tick(FPS)                                                                #FPS by sec
         pygame.display.update()                                                             #Draw the screen
@@ -340,7 +370,8 @@ class Game :
             
             self.player = Player(self)
             self.all_sprites.add(self.player)
-
+            
+            self.sbire = Sbire(self)
             
             
 

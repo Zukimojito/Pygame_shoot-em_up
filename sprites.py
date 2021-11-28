@@ -32,7 +32,7 @@ class Player(pygame.sprite.Sprite) :
         self.health = 100
         self.mana = 200
         self.live = 3
-        self.sbire = 0
+        self.nb_sbire = 0
         self.boost = 1
         self.boost_time = 0
         self.speed_time = pygame.time.get_ticks()
@@ -620,7 +620,6 @@ class Sbire(pygame.sprite.Sprite) :
         self.rect = self.image.get_rect()
         self.rect.centerx = random.randint(0, WIN_WIDTH - self.rect.width)
         self.rect.bottom = WIN_HEIGHT - 50
-        self.health = 100
         self.cooldown = 250
         self.speedX = 4
         self.speedY = 3
@@ -656,5 +655,4 @@ class Sbire(pygame.sprite.Sprite) :
         Shoot_sound.play()
 
     def self_kill(self) :
-        if self.health < 1 :
-            self.kill()
+        pass

@@ -9,6 +9,8 @@ class Draw_screen :
         self.game = game
         self.Player_Lives_Img = pygame.image.load(os.path.join("Image","player.png")).convert_alpha()
         self.Player_Lives_Img = pygame.transform.scale(self.Player_Lives_Img,(25,25))
+        self.Sbire_Lives_Img = pygame.image.load(os.path.join("Image","player.png")).convert_alpha()
+        self.Sbire_Lives_Img = pygame.transform.scale(self.Sbire_Lives_Img,(25,25))
         #self.Player_Lives_Img.set_colorkey(WHITE)
         self.Background_Img_Menu = pygame.image.load(os.path.join("Image","Background1.jpg")).convert()
 
@@ -47,12 +49,19 @@ class Draw_screen :
         pygame.draw.rect(surf, WHITE, outline_rect, 1)
     
     def Draw_live(self, surf, lives, img, x, y) :
-
         for i in range(lives) :
             img_rect = img.get_rect()
             img_rect.x = x + 30*i
             img_rect.y = y
             surf.blit(img,img_rect)
+
+    def Draw_sbire(self, surf, number, img, x, y) :
+        for i in range(number) :
+            img_rect = img.get_rect()
+            img_rect.x = x + 30*i
+            img_rect.y = y
+            surf.blit(img,img_rect)
+
 
     def draw_text(self, surf, text, size, x, y) :
         font = pygame.font.Font(self.game.font ,size)

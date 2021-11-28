@@ -28,20 +28,19 @@ class Player(pygame.sprite.Sprite) :
         self.speedX = 5
         self.speedY = 4
         self.last = pygame.time.get_ticks()
-        self.cooldown = 100
+        self.cooldown = 250
         self.health = 100
         self.mana = 200
         self.live = 3
         self.sbire = 0
         self.boost = 1
         self.boost_time = 0
+        self.speed_time = pygame.time.get_ticks()
 
     def update(self) :
         now = pygame.time.get_ticks()
-        if self.boost < 1 :
-            self.boost = 1
 
-        if self.boost > 1 and now - self.boost_time > 5000 :
+        if self.boost > 1 and now - self.boost_time > 10000 :
             self.boost -= 1
             self.boost_time = now
 
@@ -51,11 +50,18 @@ class Player(pygame.sprite.Sprite) :
 
     def movement(self) :
         keys = pygame.key.get_pressed()
+        now = pygame.time.get_ticks()
 
-        if self.speedX > 7 :
-            self.speedX = 7
-        if self.speedY > 6 :
-            self.speedY = 6
+        #Item speed
+        if self.speedX > 10 :
+            self.speedX = 10
+        if self.speedY > 9 :
+            self.speedY = 9
+
+        if self.speedX > 5 and self.speedY > 4 and now - self.speed_time > 5000 :
+            self.speed_time = now
+            self.speedX -= 1
+            self.speedY -= 1
 
         if keys[pygame.K_LEFT] or keys[pygame.K_q] :
             self.rect.x -= self.speedX
@@ -81,6 +87,9 @@ class Player(pygame.sprite.Sprite) :
     def bullet(self) :
         keys = pygame.key.get_pressed()
         self.now = pygame.time.get_ticks()
+
+        if self.cooldown < 100 :
+            self.cooldown = 100
 
         if not(self.game.LaserIsActive) :
             if keys[pygame.K_j] or keys[pygame.K_SPACE]:
@@ -115,10 +124,6 @@ class Player(pygame.sprite.Sprite) :
             self.game.Bullets.add(bullet3)
             Shoot_sound.play()
 
-
-
-
-    
     def GunUp(self) :
         self.boost += 1
         self.boost_time = pygame.time.get_tick()
@@ -605,4 +610,51 @@ class Item(pygame.sprite.Sprite) :
         if self.rect.top > WIN_HEIGHT :
             self.kill()
 
+class Sbire(pygame.sprite.Sprite) :
+    def __init__(self, game) :
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join("Image","sbire.png"))
+        self.image = pygame.transform.scale(self.image,(50,50))
+        self.image.set_colorkey(BLACK)
+        self.game = game
+        self.rect = self.image.get_rect()
+        self.rect.centerx = random.randint(0, WIN_WIDTH - self.rect.width)
+        self.rect.bottom = WIN_HEIGHT - 50
+        self.health = 100
+        self.cooldown = 250
+        self.speedX = 4
+        self.speedY = 3
+        self.position_x = random.randint(0,(WIN_WIDTH - self.rect.width))
+        self.position_y = random.randint(400,(WIN_HEIGHT - self.rect.height - 100))
+    
+    def update(self) :
+        self.movement()
+        self.self_kill()
+    
+    def movement(self) :
+        if self.rect.x < self.position_x :
+            self.rect.x += self.speedX
+        elif self.rect.x > self.position_x :
+            self.rect.x -= self.speedX
+        if self.rect.y < self.position_y :
+            self.rect.y += self.speedY
+        elif self.rect.y > self.position_y :
+            self.rect.y -= self.speedY
 
+        if abs(self.rect.x - self.position_x) < self.speedX :
+            self.position_x = random.randint(0,(WIN_WIDTH - self.rect.width))
+            self.shoot()
+                
+        if abs(self.rect.y - self.position_y) < self.speedY :
+            self.position_y = random.randint(400 ,(WIN_HEIGHT - self.rect.height - 100))
+            self.shoot()
+
+    def shoot(self) :
+        bullet = Bullet(self.rect.centerx,self.rect.top)
+        self.game.all_sprites.add(bullet)
+        self.game.Bullets.add(bullet)
+        Shoot_sound.play()
+
+    def self_kill(self) :
+        if self.health < 1 :
+            self.kill()

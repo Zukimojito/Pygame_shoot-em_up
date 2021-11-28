@@ -53,10 +53,23 @@ class Game :
         #Boss1_rire.play()
 
     def new_boss2(self) :
+    
         self.Boss2_IsAlive = True
         self.boss2 = Boss2(self)
         self.all_sprites.add(self.boss2)
         self.the_boss.add(self.boss2)
+    
+    def new_sbire(self) :
+
+        self.sbire = Sbire(self)
+        self.all_sprites.add(self.sbire)
+        self.Allies.add(self.sbire)
+    
+    def new_player(self) :
+        self.hidden = False
+        self.all_sprites.add(self.player)
+        self.player.rect.centerx = WIN_WIDTH / 2
+        self.player.rect.bottom = WIN_HEIGHT - 50
 
     def events(self) :
 
@@ -72,7 +85,7 @@ class Game :
                     if self.player.mana > 0 :
                         Laser_sound.play(-1)
                 if event.key == pygame.K_c :
-                    pass
+                    self.new_sbire()
         keys = pygame.key.get_pressed()
         
         if keys[pygame.K_LCTRL] :
@@ -108,10 +121,7 @@ class Game :
                 break
         
         if self.hidden and now - self.hide_time > 1500 :                                    #after 1.5 s we spawn player
-            self.hidden = False
-            self.all_sprites.add(self.player)
-            self.player.rect.centerx = WIN_WIDTH / 2
-            self.player.rect.bottom = WIN_HEIGHT - 50
+            self.new_player()
 
         if self.player.live == 0 and not(self.death_expl.alive()):                          #Game over 
             self.show_init = True
@@ -265,13 +275,18 @@ class Game :
         for i in hits12 :
             if i.type == 'potion' :
                 self.player.health += random.randint(10,30)
+                random.choice(item_sound).play()
             if i.type == 'sbire' :
                 self.player.sbire += 1
+                random.choice(item_sound).play()
             if i.type == 'speed' :
-                self.player.speedX += 2
-                self.player.speedY += 2
+                self.player.speedX += 1
+                self.player.speedY += 1
+                self.player.cooldown -= 5
+                random.choice(item_sound).play()
             if i.type == 'boost' :
                 self.player.boost += 1
+                random.choice(item_sound).play()
 
     def draw(self) :
         self.screen.fill(BLACK)                                                             #Draw the background colors
@@ -321,9 +336,13 @@ class Game :
             self.the_boss = pygame.sprite.Group()               #The boss
             self.Bullets_boss = pygame.sprite.Group()           #Bullets Boss
             self.Laser_sprites = pygame.sprite.Group()          #Laser
+            self.Allies = pygame.sprite.Group()                 #Sbire
             
             self.player = Player(self)
             self.all_sprites.add(self.player)
+
+            
+            
 
             for i in range(0,5) :
                 self.new_rock()

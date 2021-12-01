@@ -314,9 +314,6 @@ class Boss2(pygame.sprite.Sprite):
             
         pressed = pygame.key.get_pressed()
 
-        if pressed[pygame.K_p]:
-            self.final_shot()
-
         if pressed[pygame.K_o]:
             self.angle += 3
         if pressed[pygame.K_u]:
@@ -419,7 +416,6 @@ class Boss1(pygame.sprite.Sprite):
         self.org_image = self.image.copy()
         self.game = game
         self.angle = 0
-        self.direction1 = pygame.Vector2(0, 0)
         self.direction = []
         self.rect = self.image.get_rect(center=(WIN_WIDTH / 2, -200))
         self.pos = pygame.Vector2(self.rect.center)
@@ -438,14 +434,6 @@ class Boss1(pygame.sprite.Sprite):
             self.last_time = now
             self.shoot()"""
 
-        pressed = pygame.key.get_pressed()
-
-        if pressed[pygame.K_p]:
-            self.final_shot()
-
-        self.direction1 = pygame.Vector2(0, 1).rotate(-self.angle)
-        self.image = pygame.transform.rotate(self.org_image, self.angle)
-        self.rect = self.image.get_rect(center=self.rect.center)
 
         self.movement()
         self.kill_self()

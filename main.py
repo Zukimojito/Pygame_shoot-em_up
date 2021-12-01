@@ -11,6 +11,7 @@ class Game :
         pygame.init()
         self.screen = pygame.display.set_mode((WIN_WIDTH,WIN_HEIGHT))       
         self.NameGame = pygame.display.set_caption("Swallowed Star")        #Screen Name
+        self.icon = pygame.display.set_icon(pygame.image.load(os.path.join("Image","icon.jpg")))
         self.clock = pygame.time.Clock()                            #Framerate
         self.font = os.path.join("Text","font.ttf")
         self.running = True
@@ -372,14 +373,11 @@ class Game :
             self.all_sprites.add(self.player)
             
             self.sbire = Sbire(self)
-            
-            
-
             for i in range(0,5) :
                 self.new_rock()
             self.score = 0
-            self.new_boss2()
-            #self.new_boss1()
+            #self.new_boss2()
+            self.new_boss1()
 
 game = Game()
 game.new_game()

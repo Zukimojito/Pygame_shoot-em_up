@@ -25,7 +25,6 @@ class Laser_Animation :
         self.laser_anim = {}
         self.laser_anim['Laser_ult'] = []
 
-
         #Laser animation
         for i in range(12) :
             self.laser_img = pygame.image.load(os.path.join("Image/Laser_anim",f"laser{i}.png")).convert()

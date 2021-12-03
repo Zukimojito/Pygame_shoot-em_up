@@ -31,7 +31,7 @@ class Player(pygame.sprite.Sprite) :
         self.cooldown = 250
         self.health = 100
         self.mana = 200
-        self.live = 3
+        self.live = 1
         self.nb_sbire = 0
         self.boost = 1
         self.boost_time = 0
@@ -427,13 +427,11 @@ class Boss1(pygame.sprite.Sprite):
         self.speed = 3
 
     def update(self):
-        
         """
         now = pygame.time.get_ticks()
         if now - self.last_time > self.cooldown :
             self.last_time = now
             self.shoot()"""
-
 
         self.movement()
         self.kill_self()
@@ -644,3 +642,35 @@ class Sbire(pygame.sprite.Sprite) :
 
     def self_kill(self) :
         pass
+
+class Button() :
+    def __init__(self, x, y, width, height, fg, bg, content, fontsize) :
+        self.font = pygame.font.Font(os.path.join("Text","font.ttf"),fontsize)
+        self.content = content
+
+        self.width = width
+        self.height = height
+        self.fg = fg
+        self.bg = bg
+
+        self.image = pygame.Surface((self.width, self.height))
+        self.image.fill(self.bg)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.centery = y
+
+        self.text = self.font.render(self.content, True, self.fg)
+        self.text_rect = self.text.get_rect(center = (self.width/2, self.height/2))
+
+        self.image.blit(self.text, self.text_rect)
+
+    def Is_Pressed(self, pos, pressed) :
+        if self.rect.collidepoint(pos) :
+            if pressed[0] :
+                return True
+            return False
+        return False
+
+
+    
+

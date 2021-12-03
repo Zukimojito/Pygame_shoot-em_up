@@ -41,6 +41,25 @@ class Game :
     def new_game(self) :
         #A New game starts
         pygame.mixer.music.play(-1)
+        
+        self.all_sprites = pygame.sprite.Group()            
+        self.Rocks = pygame.sprite.Group()                  #Rock
+        self.Bullets = pygame.sprite.Group()                #Bullets player
+        self.Items = pygame.sprite.Group()                  #Items
+        self.the_boss = pygame.sprite.Group()               #The boss
+        self.Bullets_boss = pygame.sprite.Group()           #Bullets Boss
+        self.Laser_sprites = pygame.sprite.Group()          #Laser
+        self.Allies = pygame.sprite.Group()                 #Sbire
+        
+        self.player = Player(self)
+        self.all_sprites.add(self.player)
+        
+        self.sbire = Sbire(self)
+        for i in range(0,5) :
+            self.new_rock()
+        self.score = 0
+        #self.new_boss2()
+        self.new_boss1()
 
     def new_rock(self) : 
         self.rock = Rock()
@@ -341,8 +360,6 @@ class Game :
         pygame.display.update()                                                             #Draw the screen
 
     def main(self) :
-        
-        self.main_menu()
         self.events()
         self.update()
         self.Collision()
@@ -353,37 +370,17 @@ class Game :
     def game_over(self) :
         pass
 
-    def main_menu(self) :
-        if self.show_init :
-            close_game = self.draw_screen.Draw_init()
-            if close_game :
-                pass
-            #A New game starts
-            self.show_init = False
-            self.all_sprites = pygame.sprite.Group()            
-            self.Rocks = pygame.sprite.Group()                  #Rock
-            self.Bullets = pygame.sprite.Group()                #Bullets player
-            self.Items = pygame.sprite.Group()                  #Items
-            self.the_boss = pygame.sprite.Group()               #The boss
-            self.Bullets_boss = pygame.sprite.Group()           #Bullets Boss
-            self.Laser_sprites = pygame.sprite.Group()          #Laser
-            self.Allies = pygame.sprite.Group()                 #Sbire
-            
-            self.player = Player(self)
-            self.all_sprites.add(self.player)
-            
-            self.sbire = Sbire(self)
-            for i in range(0,5) :
-                self.new_rock()
-            self.score = 0
-            #self.new_boss2()
-            self.new_boss1()
-
 game = Game()
-game.new_game()
 
-while game.running :
-    game.main()
+while game.running :                                        #Game running 
+    if game.show_init :                                     #Open Main Menu
+        close_game = game.draw_screen.Draw_init()
+        if close_game :                                     #If we close the game, so break
+            break
+        else :
+            game.show_init = False                          #Else if player start a game so Close Main Menu
+            game.new_game()                                 #Add all Sprites 
+    game.main()                                             #Game start !!
 
 pygame.quit()
 sys.exit()

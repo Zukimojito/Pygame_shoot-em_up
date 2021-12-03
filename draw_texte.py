@@ -3,6 +3,7 @@ import math
 import random
 import os
 from config import *
+from sprites import Button
 
 class Draw_screen :
     def __init__(self, game) :
@@ -79,14 +80,30 @@ class Draw_screen :
         self.draw_text(self.game.screen,'Press Ctrl to ult', 28, WIN_WIDTH/2, WIN_HEIGHT/1.75 - 50)
         self.draw_text(self.game.screen,'Press C to summoner', 28, WIN_WIDTH/2, WIN_HEIGHT/1.75)
         self.draw_text(self.game.screen,'by Zukimojito', 12, WIN_WIDTH/1.075, WIN_HEIGHT-20)
-        pygame.display.update()
+
+        Play_Button = Button(WIN_WIDTH/2, WIN_HEIGHT/1.25, 150, 50, WHITE, BLACK, 'Play', 32)
+
+
+    
         self.waiting = True
         while self.waiting :
-            self.game.clock.tick(FPS)
             for event in pygame.event.get() :
                 if event.type == pygame.QUIT :
                     pygame.quit()
                     return True
+                """
                 elif event.type == pygame.KEYUP :
                     self.waiting = False
-                    return False
+                    return False"""
+
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_pressed = pygame.mouse.get_pressed()
+            
+            if Play_Button.Is_Pressed(mouse_pos, mouse_pressed) :
+                self.waiting = False
+                return False
+            
+            self.game.screen.blit(Play_Button.image, Play_Button.rect)
+
+            self.game.clock.tick(FPS)
+            pygame.display.update()

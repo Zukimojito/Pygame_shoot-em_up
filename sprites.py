@@ -31,7 +31,7 @@ class Player(pygame.sprite.Sprite) :
         self.cooldown = 250
         self.health = 100
         self.mana = 200
-        self.live = 1
+        self.live = 3
         self.nb_sbire = 0
         self.boost = 1
         self.boost_time = 0
@@ -299,7 +299,7 @@ class Boss2(pygame.sprite.Sprite):
         self.direction = []
         self.rect = self.image.get_rect(center=(WIN_WIDTH / 2, -100))
         self.pos = pygame.Vector2(self.rect.center)
-        self.health = 100
+        self.health = 1000
         self.cooldown = 300
         self.last_time = pygame.time.get_ticks()
         self.random_rotate = random.randint(-90,90)
@@ -419,7 +419,7 @@ class Boss1(pygame.sprite.Sprite):
         self.direction = []
         self.rect = self.image.get_rect(center=(WIN_WIDTH / 2, -200))
         self.pos = pygame.Vector2(self.rect.center)
-        self.health = 100
+        self.health = 1000
         self.cooldown = 300
         self.last_time = pygame.time.get_ticks()
         self.position_x = random.randint(0,(WIN_WIDTH - self.rect.width))
@@ -654,7 +654,7 @@ class Button() :
         self.bg = bg
 
         self.image = pygame.Surface((self.width, self.height))
-        self.image.fill(self.bg)
+        ##self.image.fill(self.bg)
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.centery = y

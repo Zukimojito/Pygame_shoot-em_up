@@ -2,6 +2,8 @@ import pygame
 import math
 import random
 import os
+
+from pygame.constants import MOUSEBUTTONUP
 from config import *
 from sprites import Button
 
@@ -13,7 +15,8 @@ class Draw_screen :
         self.Sbire_Lives_Img = pygame.image.load(os.path.join("Image","sbire.png")).convert_alpha()
         self.Sbire_Lives_Img = pygame.transform.scale(self.Sbire_Lives_Img,(25,25))
         #self.Player_Lives_Img.set_colorkey(WHITE)
-        self.Background_Img_Menu = pygame.image.load(os.path.join("Image","Background1.jpg")).convert()
+        self.Background_Img_Menu = pygame.image.load(os.path.join("Image","Background1.jpg"))
+        self.Background_Img_GameOver = pygame.image.load(os.path.join("Image","end.png"))
 
     def Draw_score(self, surf, text, size, x, y) :
         font = pygame.font.Font(self.game.font ,size)
@@ -83,27 +86,28 @@ class Draw_screen :
 
         Play_Button = Button(WIN_WIDTH/2, WIN_HEIGHT/1.25, 150, 50, WHITE, BLACK, 'Play', 32)
 
-
-    
         self.waiting = True
         while self.waiting :
             for event in pygame.event.get() :
+                mouse_pos = pygame.mouse.get_pos()
+                mouse_pressed = pygame.mouse.get_pressed()
+                
                 if event.type == pygame.QUIT :
                     pygame.quit()
                     return True
+                if event.type == pygame.MOUSEBUTTONDOWN :
+                    if Play_Button.Is_Pressed(mouse_pos, mouse_pressed) :
+                        self.waiting = False
+                        return False
                 """
                 elif event.type == pygame.KEYUP :
                     self.waiting = False
                     return False"""
 
-            mouse_pos = pygame.mouse.get_pos()
-            mouse_pressed = pygame.mouse.get_pressed()
-            
+            """
             if Play_Button.Is_Pressed(mouse_pos, mouse_pressed) :
                 self.waiting = False
-                return False
-            
+                return False"""
             self.game.screen.blit(Play_Button.image, Play_Button.rect)
-
             self.game.clock.tick(FPS)
             pygame.display.update()

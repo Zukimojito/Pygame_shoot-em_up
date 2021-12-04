@@ -1,6 +1,8 @@
 import pygame
 import os
 import sys
+
+from pygame import mouse
 from sprites import *
 from config import *
 from draw_texte import *
@@ -37,29 +39,6 @@ class Game :
         self.hidden = True
         self.hide_time = pygame.time.get_ticks()
         self.player.kill()
-
-    def new_game(self) :
-        #A New game starts
-        pygame.mixer.music.play(-1)
-        
-        self.all_sprites = pygame.sprite.Group()            
-        self.Rocks = pygame.sprite.Group()                  #Rock
-        self.Bullets = pygame.sprite.Group()                #Bullets player
-        self.Items = pygame.sprite.Group()                  #Items
-        self.the_boss = pygame.sprite.Group()               #The boss
-        self.Bullets_boss = pygame.sprite.Group()           #Bullets Boss
-        self.Laser_sprites = pygame.sprite.Group()          #Laser
-        self.Allies = pygame.sprite.Group()                 #Sbire
-        
-        self.player = Player(self)
-        self.all_sprites.add(self.player)
-        
-        self.sbire = Sbire(self)
-        for i in range(0,5) :
-            self.new_rock()
-        self.score = 0
-        #self.new_boss2()
-        self.new_boss1()
 
     def new_rock(self) : 
         self.rock = Rock()
@@ -147,7 +126,10 @@ class Game :
             self.new_player()
 
         if self.player.live == 0 and not(self.death_expl.alive()):                          #Game over 
-            self.show_init = True
+            #self.show_init = True
+            self.game_over()
+
+
 
     def Collision(self) :
         now = pygame.time.get_ticks()
@@ -365,12 +347,67 @@ class Game :
         self.Collision()
         self.draw()
 
-        print(f"{self.clock.get_fps()} FPS")        #Show FPS in terminal
+        #print(f"{self.clock.get_fps()} FPS")                #Show FPS in terminal
 
     def game_over(self) :
-        pass
+        self.screen.blit(self.draw_screen.Background_Img_GameOver,(-35,0))
+        self.draw_screen.draw_text(self.screen,'Your score is ', 64, WIN_WIDTH/2, WIN_HEIGHT/4)
+        self.draw_screen.Draw_score(self.screen, str(self.score), 64, WIN_WIDTH/2, WIN_HEIGHT/2 - 100)
+
+        MainMenu_Button = Button(WIN_WIDTH/4, WIN_HEIGHT/1.25, 250, 75, WHITE, BLACK, 'Main Menu', 32)
+        Retry_Button = Button(WIN_WIDTH/1.35, WIN_HEIGHT/1.25, 250, 75, WHITE, BLACK, 'Retry', 32)
+
+        for sprite in self.all_sprites :
+            sprite.kill()
+
+        self.waiting = True
+        while self.waiting :
+            for event in pygame.event.get() :
+                mouse_pos = pygame.mouse.get_pos()
+                mouse_pressed = pygame.mouse.get_pressed()
+                if event.type == pygame.QUIT :
+                    pygame.quit()
+                    #sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN :
+                    if MainMenu_Button.Is_Pressed(mouse_pos, mouse_pressed) :
+                        self.show_init = True
+                        self.waiting = False
+                    if Retry_Button.Is_Pressed(mouse_pos, mouse_pressed) :
+                        self.waiting = False
+                        self.show_init = False
+                        self.new_game()
+                        self.main()
+
+            self.screen.blit(MainMenu_Button.image, MainMenu_Button.rect)
+            self.screen.blit(Retry_Button.image, Retry_Button.rect)
+
+            self.clock.tick(FPS)
+            pygame.display.update()
+
+    def new_game(self) :
+        #A New game starts
+        
+        self.all_sprites = pygame.sprite.Group()            
+        self.Rocks = pygame.sprite.Group()                  #Rock
+        self.Bullets = pygame.sprite.Group()                #Bullets player
+        self.Items = pygame.sprite.Group()                  #Items
+        self.the_boss = pygame.sprite.Group()               #The boss
+        self.Bullets_boss = pygame.sprite.Group()           #Bullets Boss
+        self.Laser_sprites = pygame.sprite.Group()          #Laser
+        self.Allies = pygame.sprite.Group()                 #Sbire
+        
+        self.player = Player(self)
+        self.all_sprites.add(self.player)
+        
+        self.sbire = Sbire(self)
+        for i in range(0,5) :
+            self.new_rock()
+        self.score = 0
+        #self.new_boss2()
+        self.new_boss1()
 
 game = Game()
+pygame.mixer.music.play(-1)
 
 while game.running :                                        #Game running 
     if game.show_init :                                     #Open Main Menu
@@ -378,7 +415,7 @@ while game.running :                                        #Game running
         if close_game :                                     #If we close the game, so break
             break
         else :
-            game.show_init = False                          #Else if player start a game so Close Main Menu
+            game.show_init = False                          #Else if player chose to start a game so we close Main Menu
             game.new_game()                                 #Add all Sprites 
     game.main()                                             #Game start !!
 

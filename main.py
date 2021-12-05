@@ -18,23 +18,39 @@ class Game :
         self.font = os.path.join("Text","font.ttf")
         self.running = True
         self.show_init = True
+        self.GameisOver = False
         self.Background_Img = pygame.image.load(os.path.join("Image","Background3.jpg")).convert()
         self.Background = pygame.transform.scale(self.Background_Img,(845,800))
         self.Background_Y = 0
         self.score = 0
-        self.score_max = 2500
+        self.score_max = 500
         self.draw_screen = Draw_screen(self)
         self.hidden = False
         self.hide_time = 0
         self.Boss1_IsAlive = False
         self.Boss2_IsAlive = False
-        self.last_time_boss = pygame.time.get_ticks()
+        self.last_time_boss = 0
         self.LaserIsActive = False
-        self.cooldown_anim_boss1 = pygame.time.get_ticks()
-        self.cooldown_anim_boss2 = pygame.time.get_ticks()
+        self.cooldown_anim_boss1 = 0
+        self.cooldown_anim_boss2 = 0
         self.laser = Laser(self,'Laser_ult')
         self.maximum_sbire = 0
-        self.rock_random_time = pygame.time.get_ticks()
+        self.rock_random_time = 0
+        self.level_boss1 = 1
+        self.level_boss2 = 1
+
+    def RankUpBoss1(self) :
+
+        for i in range(self.level_boss1) :
+            self.boss1.health = self.boss1.max_health * 2
+            self.boss1.max_health = self.boss1.health
+        self.level_boss1 += 1
+    
+    def RankUpBoss2(self) :
+        for i in range(self.level_boss2) :
+            self.boss2.health = self.boss2.max_health * 2
+            self.boss2.max_health = self.boss2.health
+        self.level_boss2 += 1
 
     def hide(self) :
         self.hidden = True
@@ -52,18 +68,18 @@ class Game :
         self.Rocks_Random.add(self.rock_random)
 
     def new_boss1(self) :
-
         self.boss1 = Boss1(self)
         self.Boss1_IsAlive = True
         self.all_sprites.add(self.boss1)
         self.the_boss.add(self.boss1)
-        #Boss1_rire.play()
+        self.RankUpBoss1()
 
     def new_boss2(self) :
         self.boss2 = Boss2(self)
         self.Boss2_IsAlive = True
         self.all_sprites.add(self.boss2)
         self.the_boss.add(self.boss2)
+        self.RankUpBoss2()
     
     def new_sbire(self) :
         self.sbire = Sbire(self)
@@ -123,19 +139,18 @@ class Game :
                 self.score_max += 2500
                 break
 
-        if now - self.last_time_boss > 5000 :                                               #Spawn the boss1 every 60 sec
+        if now - self.last_time_boss > 45000 :                                               #Spawn the boss1 every 60 sec
             self.last_time_boss = now
             while not(self.Boss1_IsAlive) :
                 self.new_boss1()
                 break
-
 
         if now - self.rock_random_time > 30000 :                                            #Every 30s, Spawn rock coming right/left
             self.rock_random_time = now
             for i in range(0,10) :
                 self.new_rock_random()
 
-        if self.hidden and now - self.hide_time > 2500 :                                    #after 1.5 s we spawn player
+        if self.hidden and now - self.hide_time > 1500 :                                    #after 1.5 s we spawn player
             self.new_player()
 
         if self.player.live == 0 and not(self.death_expl.alive()):                          #Game over 
@@ -496,8 +511,17 @@ class Game :
         
         self.player = Player(self)
         self.all_sprites.add(self.player)
-        
         self.sbire = Sbire(self)
+
+        self.Boss1_IsAlive = False
+        self.Boss2_IsAlive = False
+        self.level_boss1 = 1
+        self.level_boss2 = 1
+        self.last_time_boss = pygame.time.get_ticks()
+        self.cooldown_anim_boss1 = pygame.time.get_ticks()
+        self.cooldown_anim_boss2 = pygame.time.get_ticks()
+        self.rock_random_time = pygame.time.get_ticks()
+
         for i in range(0,5) :
             self.new_rock()
             pass

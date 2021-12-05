@@ -38,7 +38,7 @@ class Player(pygame.sprite.Sprite) :
         self.boost = 1
         self.boost_time = 0
         self.speed_time = pygame.time.get_ticks()
-        self.dps = 50
+        self.dps = 1
 
     def update(self) :
         now = pygame.time.get_ticks()
@@ -344,7 +344,7 @@ class Boss2(pygame.sprite.Sprite):
         self.direction = []
         self.rect = self.image.get_rect(center=(WIN_WIDTH / 2, -100))
         self.pos = pygame.Vector2(self.rect.center)
-        self.health = 250
+        self.health = 50
         self.max_health = self.health
         self.cooldown = 300
         self.last_time = pygame.time.get_ticks()
@@ -468,7 +468,7 @@ class Boss1(pygame.sprite.Sprite):
         self.direction = []
         self.rect = self.image.get_rect(center=(WIN_WIDTH / 2, -200))
         self.pos = pygame.Vector2(self.rect.center)
-        self.health = 500
+        self.health = 200
         self.max_health = self.health
         self.cooldown = 300
         self.last_time = pygame.time.get_ticks()
@@ -552,7 +552,6 @@ class Boss1(pygame.sprite.Sprite):
         if self.health < 1 :
             self.game.Boss1_IsAlive = False
             self.kill()
-
 
 class Bullet_Boss(pygame.sprite.Sprite) :
     def __init__(self,x,y) :

@@ -2,10 +2,39 @@ import pygame
 import math
 import random
 import os
+from pygame import draw
 
 from pygame.constants import MOUSEBUTTONUP
 from config import *
-from sprites import Button
+
+
+class Button() :
+    def __init__(self, x, y, width, height, fg, bg, content, fontsize) :
+        self.font = pygame.font.Font(os.path.join("Text","font.ttf"),fontsize)
+        self.content = content
+
+        self.width = width
+        self.height = height
+        self.fg = fg
+        self.bg = bg
+
+        self.image = pygame.Surface((self.width, self.height))
+        ##self.image.fill(self.bg)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.centery = y
+
+        self.text = self.font.render(self.content, True, self.fg)
+        self.text_rect = self.text.get_rect(center = (self.width/2, self.height/2))
+
+        self.image.blit(self.text, self.text_rect)
+
+    def Is_Pressed(self, pos, pressed) :
+        if self.rect.collidepoint(pos) :
+            if pressed[0] :
+                return True
+            return False
+        return False
 
 class Draw_screen :
     def __init__(self, game) :
@@ -17,8 +46,18 @@ class Draw_screen :
         #self.Player_Lives_Img.set_colorkey(WHITE)
         self.Background_Img_Menu = pygame.image.load(os.path.join("Image","Background1.jpg"))
         self.Background_Img_GameOver = pygame.image.load(os.path.join("Image","end.png"))
+        self.level = []
 
     def Draw_score(self, surf, text, size, x, y) :
+        font = pygame.font.Font(self.game.font ,size)
+        text_surface = font.render(text, True, WHITE)
+        text_rect = text_surface.get_rect()
+        text_rect.centerx = x
+        text_rect.top = y
+        surf.blit(text_surface, text_rect)
+    
+    def Draw_dps(self, surf, text, size, x, y) :
+        self.draw_text(self.game.screen,'dps/ball', 20, WIN_WIDTH - 50,WIN_HEIGHT-25)
         font = pygame.font.Font(self.game.font ,size)
         text_surface = font.render(text, True, WHITE)
         text_rect = text_surface.get_rect()
@@ -29,15 +68,34 @@ class Draw_screen :
     def Draw_health(self, surf, hp, x, y) :
         if hp < 0 :
             hp = 0
-        if hp > 100 :
-            hp = 100
+        if hp > self.game.player.max_health :
+            hp = self.game.player.max_health
         BAR_LENGTH = 100
         BAR_HEIGHT = 10
-        fill = (hp/100) * BAR_LENGTH
+        fill = (hp/self.game.player.max_health) * BAR_LENGTH
         outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
         fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
         pygame.draw.rect(surf, GREEN, fill_rect)
         pygame.draw.rect(surf, WHITE, outline_rect, 1)
+    
+    def Draw_health_boss1(self, surf, hp, x, y) :
+        BAR_LENGTH = 10
+        BAR_HEIGHT = 100
+        fill = (hp/self.game.boss1.max_health) * BAR_HEIGHT
+        outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
+        fill_rect = pygame.Rect(x, y, BAR_LENGTH, fill)
+        pygame.draw.rect(surf, GREEN, fill_rect)
+        pygame.draw.rect(surf, RED, outline_rect, 1)
+    
+    def Draw_health_boss2(self, surf, hp, x, y) :
+        BAR_LENGTH = 10
+        BAR_HEIGHT = 100
+        fill = (hp/self.game.boss2.max_health) * BAR_HEIGHT
+        outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
+        fill_rect = pygame.Rect(x, y, BAR_LENGTH, fill)
+        pygame.draw.rect(surf, GREEN, fill_rect)
+        pygame.draw.rect(surf, RED, outline_rect, 1)
+
 
     def Draw_Mana(self, surf, mp, x, y) :
         if mp < 0 :
@@ -66,7 +124,6 @@ class Draw_screen :
             img_rect.y = y
             surf.blit(img,img_rect)
 
-
     def draw_text(self, surf, text, size, x, y) :
         font = pygame.font.Font(self.game.font ,size)
         text_surface = font.render(text, True, WHITE)
@@ -76,6 +133,7 @@ class Draw_screen :
         surf.blit(text_surface, text_rect)
 
     def Draw_init(self) :
+
         self.game.screen.blit(self.Background_Img_Menu,(0,0))
         self.draw_text(self.game.screen,'Swallowed Star', 64, WIN_WIDTH/2, WIN_HEIGHT/4)
         self.draw_text(self.game.screen,'Press ↑ ↓ ← or → to move', 28, WIN_WIDTH/2, WIN_HEIGHT/2 - 100)
@@ -111,3 +169,42 @@ class Draw_screen :
             self.game.screen.blit(Play_Button.image, Play_Button.rect)
             self.game.clock.tick(FPS)
             pygame.display.update()
+    
+    def Rank(self) : 
+
+        self.level = ['地球人','学徒级','行星级','恒星级','宇宙级','域主级','界主级','不朽级','宇宙尊者','宇宙之主','真神','虚空真神','永恒真神','混沌主宰','神王级','领主级']
+        self.draw_text(self.game.screen,'Your Rank : ', 64, WIN_WIDTH/2 - 100, WIN_HEIGHT/1.9)
+
+        
+        if self.game.score >= 0 and self.game.score < 100 :
+            self.draw_text(self.game.screen,self.level[0], 64, WIN_WIDTH/2 + 185, WIN_HEIGHT/1.9)
+        if self.game.score >= 100 and self.game.score < 500 :
+            self.draw_text(self.game.screen,self.level[1], 64, WIN_WIDTH/2 + 185, WIN_HEIGHT/1.9)
+        if self.game.score >= 500 and self.game.score < 1000 :
+            self.draw_text(self.game.screen,self.level[2], 64, WIN_WIDTH/2 + 185, WIN_HEIGHT/1.9)
+        if self.game.score >= 1000 and self.game.score < 2000 :
+            self.draw_text(self.game.screen,self.level[3], 64, WIN_WIDTH/2 + 185, WIN_HEIGHT/1.9)
+        if self.game.score >= 2000 and self.game.score < 5000 :
+            self.draw_text(self.game.screen,self.level[4], 64, WIN_WIDTH/2 + 185, WIN_HEIGHT/1.9)
+        if self.game.score >= 5000 and self.game.score < 7500 :
+            self.draw_text(self.game.screen,self.level[5], 64, WIN_WIDTH/2 + 185, WIN_HEIGHT/1.9)
+        if self.game.score >= 7500 and self.game.score < 10000 :
+            self.draw_text(self.game.screen,self.level[6], 64, WIN_WIDTH/2 + 185, WIN_HEIGHT/1.9)
+        if self.game.score >= 10000 and self.game.score < 15000 :
+            self.draw_text(self.game.screen,self.level[7], 64, WIN_WIDTH/2 + 185, WIN_HEIGHT/1.9)
+        if self.game.score >= 15000 and self.game.score < 20000 :
+            self.draw_text(self.game.screen,self.level[8], 64, WIN_WIDTH/2 + 185, WIN_HEIGHT/1.9)
+        if self.game.score >= 20000 and self.game.score < 30000 :
+            self.draw_text(self.game.screen,self.level[9], 64, WIN_WIDTH/2 + 185, WIN_HEIGHT/1.9)
+        if self.game.score >= 30000 and self.game.score < 40000 :
+            self.draw_text(self.game.screen,self.level[10], 64, WIN_WIDTH/2 + 185, WIN_HEIGHT/1.9)
+        if self.game.score >= 40000 and self.game.score < 50000 :
+            self.draw_text(self.game.screen,self.level[11], 64, WIN_WIDTH/2 + 185, WIN_HEIGHT/1.9)
+        if self.game.score >= 50000 and self.game.score < 75000 :
+            self.draw_text(self.game.screen,self.level[12], 64, WIN_WIDTH/2 + 185, WIN_HEIGHT/1.9)
+        if self.game.score >= 75000 and self.game.score < 100000 :
+            self.draw_text(self.game.screen,self.level[13], 64, WIN_WIDTH/2 + 185, WIN_HEIGHT/1.9)
+        if self.game.score >= 100000 and self.game.score < 500000 :
+            self.draw_text(self.game.screen,self.level[14], 64, WIN_WIDTH/2 + 185, WIN_HEIGHT/1.9)
+        if self.game.score >= 500000 :
+            self.draw_text(self.game.screen,self.level[15], 64, WIN_WIDTH/2 + 185, WIN_HEIGHT/1.9)

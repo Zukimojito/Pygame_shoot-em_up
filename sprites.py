@@ -8,6 +8,7 @@ from config import *
 from song import *
 from animation import *
 from math import cos, sin, pi
+from draw_texte import Draw_screen
 
 
 class Player(pygame.sprite.Sprite) :
@@ -29,13 +30,15 @@ class Player(pygame.sprite.Sprite) :
         self.speedY = 4
         self.last = pygame.time.get_ticks()
         self.cooldown = 250
-        self.health = 100
+        self.health = 200
+        self.max_health = self.health
         self.mana = 200
         self.live = 3
         self.nb_sbire = 0
         self.boost = 1
         self.boost_time = 0
         self.speed_time = pygame.time.get_ticks()
+        self.dps = 1
 
     def update(self) :
         now = pygame.time.get_ticks()
@@ -126,11 +129,11 @@ class Player(pygame.sprite.Sprite) :
 
     def GunUp(self) :
         self.boost += 1
-        self.boost_time = pygame.time.get_tick()
+        self.boost_time = pygame.time.get_ticks()
 
     def stats(self) :
-        if self.health > 100 :
-            self.health = 100
+        if self.health > self.max_health :
+            self.health = self.max_health
 
         if self.mana > 200 :
             self.mana = 200
@@ -148,7 +151,6 @@ class Player(pygame.sprite.Sprite) :
             self.game.LaserIsActive = False
             self.laser.kill()
             Laser_sound.stop()"""
-
 class Rock(pygame.sprite.Sprite) :
     def __init__(self) :
         pygame.sprite.Sprite.__init__(self)
@@ -178,6 +180,49 @@ class Rock(pygame.sprite.Sprite) :
             self.rect.y = random.randrange(-50,-20)
             self.speedX = random.randrange(-3,3)
             self.speedY = random.randrange(3,8)
+
+    def rotation(self) :
+        self.total_rotation_degree += self.rotation_degree
+        self.total_rotation_degree = self.total_rotation_degree % 360
+        self.image = pygame.transform.rotate(self.image_original, self.total_rotation_degree)       #function to rotate
+        center = self.rect.center
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+
+class RockRandom(pygame.sprite.Sprite) :
+    def __init__(self) :
+        pygame.sprite.Sprite.__init__(self)
+        Rock_Imgs = []
+        for i in range(0,7) :
+            Rock_Imgs.append(pygame.image.load(os.path.join("Image/Rock",f"rock{i}.png")).convert())
+        self.image_original = random.choice(Rock_Imgs)
+        self.image_original.set_colorkey(BLACK)
+        self.image = self.image_original.copy()
+        self.rect = self.image.get_rect()
+        self.radius = self.rect.width * 0.80 / 2
+
+        self.randomPosX = [-150, WIN_WIDTH + 150]
+        self.pos = random.choice(self.randomPosX)
+        self.rect.x = self.pos
+        
+        self.rect.y = random.randrange(200,WIN_HEIGHT)
+        self.speedX = random.randrange(2,7)
+        self.speedY = random.randrange(0,1)
+        self.rotation_degree = random.randrange(-10,10)
+        self.total_rotation_degree = 0
+
+    def update(self) :
+        self.rotation()
+        self.rect.y += self.speedY
+
+        if self.pos < 0 :
+            self.rect.x += self.speedX
+        if self.pos > WIN_WIDTH :
+            self.rect.x -= self.speedX
+
+
+        if self.rect.left > WIN_WIDTH + 300 or self.rect.right < -300 or self.rect.top > WIN_HEIGHT + 300 or self.rect.bottom < -300 :
+            self.kill()
 
     def rotation(self) :
         self.total_rotation_degree += self.rotation_degree
@@ -299,7 +344,8 @@ class Boss2(pygame.sprite.Sprite):
         self.direction = []
         self.rect = self.image.get_rect(center=(WIN_WIDTH / 2, -100))
         self.pos = pygame.Vector2(self.rect.center)
-        self.health = 1000
+        self.health = 250
+        self.max_health = self.health
         self.cooldown = 300
         self.last_time = pygame.time.get_ticks()
         self.random_rotate = random.randint(-90,90)
@@ -406,6 +452,7 @@ class Boss2(pygame.sprite.Sprite):
         if self.health < 1 :
             self.game.Boss2_IsAlive = False
             self.kill()
+            self.health *= 2
 
 class Boss1(pygame.sprite.Sprite):
     def __init__(self, game):
@@ -419,7 +466,8 @@ class Boss1(pygame.sprite.Sprite):
         self.direction = []
         self.rect = self.image.get_rect(center=(WIN_WIDTH / 2, -200))
         self.pos = pygame.Vector2(self.rect.center)
-        self.health = 1000
+        self.health = 500
+        self.max_health = self.health
         self.cooldown = 300
         self.last_time = pygame.time.get_ticks()
         self.position_x = random.randint(0,(WIN_WIDTH - self.rect.width))
@@ -435,6 +483,7 @@ class Boss1(pygame.sprite.Sprite):
 
         self.movement()
         self.kill_self()
+
     
     def movement(self) :
 
@@ -508,6 +557,7 @@ class Boss1(pygame.sprite.Sprite):
         if self.health < 1 :
             self.game.Boss1_IsAlive = False
             self.kill()
+            self.health *= 2
 
 class Bullet_Boss(pygame.sprite.Sprite) :
     def __init__(self,x,y) :
@@ -642,35 +692,3 @@ class Sbire(pygame.sprite.Sprite) :
 
     def self_kill(self) :
         pass
-
-class Button() :
-    def __init__(self, x, y, width, height, fg, bg, content, fontsize) :
-        self.font = pygame.font.Font(os.path.join("Text","font.ttf"),fontsize)
-        self.content = content
-
-        self.width = width
-        self.height = height
-        self.fg = fg
-        self.bg = bg
-
-        self.image = pygame.Surface((self.width, self.height))
-        ##self.image.fill(self.bg)
-        self.rect = self.image.get_rect()
-        self.rect.centerx = x
-        self.rect.centery = y
-
-        self.text = self.font.render(self.content, True, self.fg)
-        self.text_rect = self.text.get_rect(center = (self.width/2, self.height/2))
-
-        self.image.blit(self.text, self.text_rect)
-
-    def Is_Pressed(self, pos, pressed) :
-        if self.rect.collidepoint(pos) :
-            if pressed[0] :
-                return True
-            return False
-        return False
-
-
-    
-

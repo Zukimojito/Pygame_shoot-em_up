@@ -1,0 +1,2 @@
+laser activer qd on est mort
+collison des anciens boss activé qd on retry

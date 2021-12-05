@@ -22,7 +22,7 @@ class Game :
         self.Background = pygame.transform.scale(self.Background_Img,(845,800))
         self.Background_Y = 0
         self.score = 0
-        self.score_max = 5000
+        self.score_max = 2500
         self.draw_screen = Draw_screen(self)
         self.hidden = False
         self.hide_time = 0
@@ -52,13 +52,15 @@ class Game :
         self.Rocks_Random.add(self.rock_random)
 
     def new_boss1(self) :
+
+        self.boss1 = Boss1(self)
         self.Boss1_IsAlive = True
         self.all_sprites.add(self.boss1)
         self.the_boss.add(self.boss1)
         #Boss1_rire.play()
 
     def new_boss2(self) :
-    
+        self.boss2 = Boss2(self)
         self.Boss2_IsAlive = True
         self.all_sprites.add(self.boss2)
         self.the_boss.add(self.boss2)
@@ -118,14 +120,15 @@ class Game :
         if self.score > self.score_max :                                                    #Spawn the boss2
             while not(self.Boss2_IsAlive) :
                 self.new_boss2()
-                self.score_max += 5000
+                self.score_max += 2500
                 break
-        
-        if now - self.last_time_boss > 30000 :                                               #Spawn the boss1 every 60 sec
+
+        if now - self.last_time_boss > 5000 :                                               #Spawn the boss1 every 60 sec
             self.last_time_boss = now
             while not(self.Boss1_IsAlive) :
                 self.new_boss1()
                 break
+
 
         if now - self.rock_random_time > 30000 :                                            #Every 30s, Spawn rock coming right/left
             self.rock_random_time = now
@@ -186,7 +189,7 @@ class Game :
                     self.boss2.final_shot()
                     explo = Explosion(i.rect.center, 'player')
                     self.all_sprites.add(explo)
-        
+
         #Boss1 and Bullet_player
         if self.Boss1_IsAlive :
             hit6 = pygame.sprite.spritecollide(self.boss1, self.Bullets, True, pygame.sprite.collide_mask)
@@ -200,16 +203,16 @@ class Game :
                     explo = Explosion(i.rect.center, 'player')
                     self.all_sprites.add(explo)
                     self.boss1.final_shot()
+                    
 
-        
-        #Bullet_player and Bullet_Boss2
+        #Bullet_player and Bullet_Boss
         hit4 = pygame.sprite.groupcollide(self.Bullets, self.Bullets_boss, True, True)
         for i in hit4 :
             explo = Explosion(i.rect.center, 'small')
             self.all_sprites.add(explo)
             random.choice(explo_sound).play()
         
-        #Player and Bullet_Boss2
+        #Player and Bullet_Boss
         if not(self.hidden) :        #if player hasn't die
             hit5 = pygame.sprite.spritecollide(self.player, self.Bullets_boss, True, pygame.sprite.collide_mask)
             for i in hit5 :
@@ -267,10 +270,11 @@ class Game :
                         self.all_sprites.add(explo)
                         random.choice(explo_sound).play()
                         self.boss2.health -= self.player.dps
-                    if not(self.Boss2_IsAlive) :
+                    if self.boss2.health < 1 :
                         explo = Explosion(i.rect.center, 'player')
                         self.all_sprites.add(explo)
                         self.boss2.final_shot()
+
 
         #Laser and Boss1
         if self.Boss1_IsAlive :
@@ -283,7 +287,7 @@ class Game :
                         self.all_sprites.add(explo)
                         random.choice(explo_sound).play()
                         self.boss1.health -= self.player.dps
-                    if not(self.Boss1_IsAlive):
+                    if self.boss1.health < 1:
                         explo = Explosion(i.rect.center, 'player')
                         self.all_sprites.add(explo)
                         self.boss1.final_shot()
@@ -373,6 +377,37 @@ class Game :
             self.all_sprites.add(self.death_expl)
             Death_sound.play()
             self.maximum_sbire -= 1
+        
+        #Player and final_shoot
+        if not(self.hidden) :        #if player hasn't die
+            hit20 = pygame.sprite.spritecollide(self.player, self.final_shoot, True, pygame.sprite.collide_mask)
+            for i in hit20 :
+                explo = Explosion(i.rect.center, 'small')
+                self.all_sprites.add(explo)
+                self.player.health -= int(random.randrange(5,20))
+                random.choice(explo_sound).play()
+                if self.player.health < 1 :
+                    self.death_expl = Explosion(i.rect.center, 'player')
+                    self.all_sprites.add(self.death_expl)
+                    Death_sound.play()
+                    self.player.live -= 1
+                    self.player.health = self.player.max_health
+                    self.hide()
+
+        #Bullet_player and final_shoot
+        hit21 = pygame.sprite.groupcollide(self.Bullets, self.final_shoot, True, True)
+        for i in hit21 :
+            explo = Explosion(i.rect.center, 'small')
+            self.all_sprites.add(explo)
+            random.choice(explo_sound).play()
+        
+        #sbire and final_shoot
+        hit22 = pygame.sprite.groupcollide(self.Allies, self.Bullets_boss, True, True, pygame.sprite.collide_mask)
+        for i in hit22 :
+            self.death_expl = Explosion(i.rect.center, 'player')
+            self.all_sprites.add(self.death_expl)
+            Death_sound.play()
+            self.maximum_sbire -= 1
 
     def draw(self) :
         self.screen.fill(BLACK)                                                             #Draw the background colors
@@ -457,16 +492,14 @@ class Game :
         self.Laser_sprites = pygame.sprite.Group()          #Laser
         self.Allies = pygame.sprite.Group()                 #Sbire
         self.Rocks_Random = pygame.sprite.Group()           #Rock coming to the right / to the left
+        self.final_shoot = pygame.sprite.Group()            #Final shoot (boss)
         
         self.player = Player(self)
         self.all_sprites.add(self.player)
         
-        self.boss1 = Boss1(self)
-        self.boss2 = Boss2(self)
         self.sbire = Sbire(self)
         for i in range(0,5) :
             self.new_rock()
-            #self.new_rock_random()
             pass
         self.score = 0
         #self.new_boss2()

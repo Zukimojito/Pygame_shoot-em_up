@@ -38,7 +38,7 @@ class Player(pygame.sprite.Sprite) :
         self.boost = 1
         self.boost_time = 0
         self.speed_time = pygame.time.get_ticks()
-        self.dps = 1
+        self.dps = 50
 
     def update(self) :
         now = pygame.time.get_ticks()
@@ -206,7 +206,7 @@ class RockRandom(pygame.sprite.Sprite) :
         self.rect.x = self.pos
         
         self.rect.y = random.randrange(200,WIN_HEIGHT)
-        self.speedX = random.randrange(2,7)
+        self.speedX = random.randrange(4,8)
         self.speedY = random.randrange(0,1)
         self.rotation_degree = random.randrange(-10,10)
         self.total_rotation_degree = 0
@@ -431,7 +431,7 @@ class Boss2(pygame.sprite.Sprite):
             final_shoot.append(Projectile_Boss(self.rect.center, self.direction[i]))
             #self.groups()[0].add(final_shoot)
             self.game.all_sprites.add(final_shoot)
-            self.game.Bullets_boss.add(final_shoot)
+            self.game.final_shoot.add(final_shoot)
 
         """
         shoot1 = Projectile(self.rect.center, self.direction1)
@@ -452,7 +452,6 @@ class Boss2(pygame.sprite.Sprite):
         if self.health < 1 :
             self.game.Boss2_IsAlive = False
             self.kill()
-            self.health *= 2
 
 class Boss1(pygame.sprite.Sprite):
     def __init__(self, game):
@@ -461,7 +460,6 @@ class Boss1(pygame.sprite.Sprite):
         for i in range(1,4) :
             Image_francois.append(pygame.image.load(os.path.join("Image",f"boss_francois{i}.png")).convert_alpha())
         self.image = random.choice(Image_francois)
-
         self.image = pygame.transform.scale(self.image,(256,232))
         self.image.set_colorkey((0, 0, 0))
         self.org_image = self.image.copy()
@@ -479,16 +477,9 @@ class Boss1(pygame.sprite.Sprite):
         self.speed = 3
 
     def update(self):
-        """
-        now = pygame.time.get_ticks()
-        if now - self.last_time > self.cooldown :
-            self.last_time = now
-            self.shoot()"""
-
         self.movement()
         self.kill_self()
 
-    
     def movement(self) :
 
         if self.rect.top < 0 :
@@ -533,7 +524,7 @@ class Boss1(pygame.sprite.Sprite):
         for i in range(40) :
             final_shoot.append(Projectile_Boss(self.rect.center, self.direction[i]))
             self.game.all_sprites.add(final_shoot)
-            self.game.Bullets_boss.add(final_shoot)
+            self.game.final_shoot.add(final_shoot)
         """
         shoot1 = Projectile(self.rect.center, self.direction1)
         self.groups()[0].add(shoot1)
@@ -561,7 +552,7 @@ class Boss1(pygame.sprite.Sprite):
         if self.health < 1 :
             self.game.Boss1_IsAlive = False
             self.kill()
-            self.health *= 2
+
 
 class Bullet_Boss(pygame.sprite.Sprite) :
     def __init__(self,x,y) :

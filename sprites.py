@@ -457,7 +457,11 @@ class Boss2(pygame.sprite.Sprite):
 class Boss1(pygame.sprite.Sprite):
     def __init__(self, game):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join("Image","boss1.png")).convert_alpha()
+        Image_francois = []
+        for i in range(1,4) :
+            Image_francois.append(pygame.image.load(os.path.join("Image",f"boss_francois{i}.png")).convert_alpha())
+        self.image = random.choice(Image_francois)
+
         self.image = pygame.transform.scale(self.image,(256,232))
         self.image.set_colorkey((0, 0, 0))
         self.org_image = self.image.copy()

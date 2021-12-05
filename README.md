@@ -10,3 +10,7 @@ Press ↑ ↓ → or ← to move
 Press SPACE to shoot
 
 Press LCtrl to use Laser
+
+Press C to Summoner
+
+You can get this game here -> https://drive.google.com/file/d/1WROcsSJba3Gl2ELVOriZrQr-y-Se5uVW/view?usp=sharing
